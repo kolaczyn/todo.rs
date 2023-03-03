@@ -1,14 +1,9 @@
 mod commands;
-mod file_utils;
-mod generic_error;
-mod random_id;
 mod todo;
-mod todo_notes;
+mod utils;
 
 use clap::{arg, Command};
-use commands::read::read_command;
-use commands::write::write_command;
-
+use commands::{read_command::read_command, write_command::write_command};
 use serde_json::Error;
 
 fn cli() -> Command {

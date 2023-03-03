@@ -1,7 +1,9 @@
 use crate::{
-    file_utils::{read_todos_from_file, write_todos_to_file},
-    generic_error::GenericError,
     todo::Todo,
+    utils::{
+        file_utils::{read_todos_from_file, write_todos_to_file},
+        generic_error::GenericError,
+    },
 };
 
 pub fn write_command(label: String) -> Result<(), GenericError> {

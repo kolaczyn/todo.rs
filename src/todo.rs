@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::cmp::Eq;
 
-use crate::random_id::random_id;
-
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct Todo {
     pub completed: bool,
@@ -14,9 +12,14 @@ impl Todo {
     pub fn new(label: String) -> Todo {
         Todo {
             completed: true,
-            id: random_id(),
+            id: Todo::random_id(),
             label,
         }
+    }
+    pub fn random_id() -> String {
+        let word_one = random_word::gen();
+        let word_two = random_word::gen();
+        format!("{} {}", word_one, word_two)
     }
 }
 
