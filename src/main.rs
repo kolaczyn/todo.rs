@@ -33,7 +33,7 @@ fn main() -> Result<(), Error> {
             // I think force unwraping makes sense here, because this is the outermost edge of the program
             // But there might be a better way of doing this
             let label = sub_matches.get_one::<String>("TODO_LABEL").unwrap();
-            write_command(String::from(label))
+            write_command(String::from(label)).unwrap();
         }
         _ => unreachable!(),
     }
