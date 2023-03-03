@@ -1,9 +1,30 @@
-use crate::utils::file_utils::read_todos_from_file;
+use crate::{todo::Todo, utils::file_utils::read_todos_from_file};
 
-pub fn read_command() -> () {
-    let todo = read_todos_from_file();
-    match todo {
+pub fn read_all_command() -> () {
+    let todos = read_todos_from_file();
+    match todos {
         Ok(x) => print!("{:?}", x),
         Err(_) => print!("You have no todos"),
+    }
+}
+
+fn find_todo<'a>(todo_id: String, todos: &'a Vec<Todo>) -> Option<&'a Todo> {
+    todos.iter().find(|x| x.id == todo_id)
+}
+
+const TODO_NOT_FOUND_MESSAGE: &str = "Couldn't find todo with the specified id";
+
+pub fn read_one_command(todo_id: String) -> () {
+    let todos = read_todos_from_file();
+    // nested todos look fucking ugly, but I dunno how to do it idiomatically :p
+    match todos {
+        Ok(x) => {
+            let todo = find_todo(todo_id, &x);
+            match todo {
+                Some(found_todo) => print!("Found: {:?}", found_todo),
+                None => println!("{}", TODO_NOT_FOUND_MESSAGE),
+            }
+        }
+        Err(_) => println!("{}", TODO_NOT_FOUND_MESSAGE),
     }
 }

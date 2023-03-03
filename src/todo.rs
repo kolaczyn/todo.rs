@@ -11,7 +11,7 @@ pub struct Todo {
 impl Todo {
     pub fn new(label: String) -> Todo {
         Todo {
-            completed: true,
+            completed: false,
             id: Todo::random_id(),
             label,
         }
