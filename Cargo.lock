@@ -24,6 +24,7 @@ name = "hello"
 version = "0.1.0"
 dependencies = [
  "rand",
+ "random_word",
  "serde",
  "serde_json",
 ]
@@ -92,6 +93,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 dependencies = [
  "getrandom",
+]
+
+[[package]]
+name = "random_word"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97b2bb830d03b36582fd6723a57d2451b9db74574d21c34db9d7122c96b24fa0"
+dependencies = [
+ "rand",
 ]
 
 [[package]]

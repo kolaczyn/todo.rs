@@ -1,17 +1,19 @@
 use serde::{Deserialize, Serialize};
 
+use crate::random_id::random_id;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Todo {
     pub completed: bool,
     pub label: String,
-    pub id: i64,
+    pub id: String
 }
 
 impl Todo {
     pub fn new(label: String) -> Todo {
         Todo {
             completed: false,
-            id: rand::random::<i64>(),
+            id: random_id(),
             label,
         }
     }
