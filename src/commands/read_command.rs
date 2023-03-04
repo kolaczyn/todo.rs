@@ -9,7 +9,7 @@ pub fn read_all_command() -> () {
 }
 
 fn find_todo<'a>(todo_id: String, todos: &'a Vec<Todo>) -> Option<&'a Todo> {
-    todos.iter().find(|x| x.id == todo_id)
+    todos.iter().find(|x| x.legacy_id == todo_id)
 }
 
 const TODO_NOT_FOUND_MESSAGE: &str = "Couldn't find todo with the specified id";

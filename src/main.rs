@@ -27,7 +27,7 @@ fn cli() -> Command {
         )
 }
 
-fn main() -> Result<(), Error> {
+fn run_cli() -> Result<(), Error> {
     let matches = cli().get_matches();
 
     match matches.subcommand() {
@@ -47,5 +47,10 @@ fn main() -> Result<(), Error> {
         _ => unreachable!(),
     }
 
-    return Ok(());
+    Ok(())
+}
+
+fn main() -> () {
+    run_cli().unwrap();
+    // establish_connection();
 }

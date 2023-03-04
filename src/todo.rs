@@ -5,14 +5,14 @@ use std::cmp::Eq;
 pub struct Todo {
     pub completed: bool,
     pub label: String,
-    pub id: String,
+    pub legacy_id: String,
 }
 
 impl Todo {
     pub fn new(label: String) -> Todo {
         Todo {
             completed: false,
-            id: Todo::random_id(),
+            legacy_id: Todo::random_id(),
             label,
         }
     }

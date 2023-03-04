@@ -2,7 +2,7 @@ use crate::todo::Todo;
 
 use super::generic_error::GenericError;
 
-const NOTES_FILE_NAME: &str = "todos.notes";
+const NOTES_FILE_NAME: &str = "todos.json";
 
 pub fn read_todos_from_file() -> Result<Vec<Todo>, GenericError> {
     let as_string = std::fs::read_to_string(NOTES_FILE_NAME)?;
