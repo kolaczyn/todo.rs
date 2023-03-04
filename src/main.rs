@@ -53,4 +53,5 @@ fn run_cli() -> Result<(), Error> {
 fn main() -> () {
     run_cli().unwrap();
     // establish_connection();
+    println!();
 }

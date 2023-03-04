@@ -21,6 +21,10 @@ impl Todo {
         let word_two = random_word::gen();
         format!("{} {}", word_one, word_two)
     }
+    pub fn to_string(&self) -> String {
+        let check = if self.completed { "[x}" } else { "[ ]" };
+        format!("{} {} #{}", check, self.label, self.legacy_id)
+    }
 }
 
 #[cfg(test)]

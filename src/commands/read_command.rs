@@ -3,7 +3,10 @@ use crate::{todo::Todo, utils::file_utils::read_todos_from_file};
 pub fn read_all_command() -> () {
     let todos = read_todos_from_file();
     match todos {
-        Ok(x) => print!("{:?}", x),
+        Ok(todos) => todos
+            .iter()
+            .map(|todo| todo.to_string())
+            .for_each(|s| println!("{}", s)),
         Err(_) => print!("You have no todos"),
     }
 }
@@ -21,7 +24,7 @@ pub fn read_one_command(todo_id: String) -> () {
         Ok(x) => {
             let todo = find_todo(todo_id, &x);
             match todo {
-                Some(found_todo) => print!("Found: {:?}", found_todo),
+                Some(todo) => print!("{}", todo.to_string()),
                 None => println!("{}", TODO_NOT_FOUND_MESSAGE),
             }
         }
