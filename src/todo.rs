@@ -1,29 +1,35 @@
+use super::schema::todos;
+use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::cmp::Eq;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq, Queryable)]
 pub struct Todo {
     pub completed: bool,
     pub label: String,
-    pub legacy_id: String,
+    pub id: i32,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name=todos)]
+pub struct NewTodo {
+    pub label: String,
 }
 
 impl Todo {
     pub fn new(label: String) -> Todo {
         Todo {
             completed: false,
-            legacy_id: Todo::random_id(),
+            id: Todo::random_id(),
             label,
         }
     }
-    pub fn random_id() -> String {
-        let word_one = random_word::gen();
-        let word_two = random_word::gen();
-        format!("{} {}", word_one, word_two)
+    pub fn random_id() -> i32 {
+        rand::random()
     }
     pub fn to_string(&self) -> String {
         let check = if self.completed { "[x}" } else { "[ ]" };
-        format!("{} {} #{}", check, self.label, self.legacy_id)
+        format!("{} {} #{}", check, self.label, self.id)
     }
 }
 

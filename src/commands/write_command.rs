@@ -1,3 +1,5 @@
+use diesel::SqliteConnection;
+
 use crate::{
     todo::Todo,
     utils::{
@@ -6,7 +8,7 @@ use crate::{
     },
 };
 
-pub fn write_command(label: String) -> Result<(), GenericError> {
+pub fn write_command(conn: SqliteConnection, label: String) -> Result<(), GenericError> {
     let todo = Todo::new(label.to_string());
     let mut todos = read_todos_from_file().unwrap_or(vec![]);
     todos.push(todo);
