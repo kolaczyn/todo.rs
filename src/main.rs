@@ -9,9 +9,12 @@ use commands::{
     write_command::write_command,
 };
 use diesel::{
-    associations::HasTable, query_dsl::methods::FilterDsl, QueryDsl, RunQueryDsl, SqliteConnection,
+    associations::HasTable, query_dsl::methods::FilterDsl, serialize, QueryDsl, RunQueryDsl,
+    SqliteConnection,
 };
+use serde::Serialize;
 use serde_json::Error;
+use tide::{Body, Request, Response};
 
 use crate::{
     todo::{NewTodo, Todo},
@@ -85,10 +88,51 @@ fn diesel_experiments() -> Result<(), Error> {
     Ok(())
 }
 
-fn main() -> Result<(), Error> {
-    // run_cli()?;
-    // println!();
-    // Ok(())
+fn todos() -> Vec<Todo> {
+    let todo_one = Todo {
+        completed: false,
+        id: 1,
+        label: String::from("Learn Rust"),
+    };
 
-    diesel_experiments()
+    let todo_two = Todo {
+        completed: false,
+        id: 2,
+        label: String::from("Learn Rust"),
+    };
+
+    vec![todo_one, todo_two]
+}
+
+async fn get_hello_word(_req: Request<()>) -> tide::Result<String> {
+    Ok(String::from("Hello world"))
+}
+
+async fn get_todos(_req: Request<()>) -> tide::Result<String> {
+    Ok(serde_json::to_string_pretty(&todos())?)
+}
+
+async fn get_todo(req: Request<()>) -> tide::Result<String> {
+    let id: i32 = req.param("id")?.parse().unwrap();
+    let all_todos = todos();
+    let todos = all_todos.iter().find(|x| x.id == id);
+
+    match todos {
+        Some(x) => Ok(serde_json::to_string(&x)?),
+        // This is not okay, will have to fix this :p
+        None => Ok(String::from("Not found")),
+    }
+}
+
+#[async_std::main]
+async fn main() -> tide::Result<()> {
+    let mut app = tide::new();
+
+    app.at("/hello").get(get_hello_word);
+    app.at("/todos").get(get_todos);
+    app.at("/todos/:id").get(get_todo);
+
+    println!("Listening on http://localhost:8080");
+    app.listen("0.0.0.0:8080").await?;
+    Ok(())
 }
