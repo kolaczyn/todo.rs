@@ -1,4 +1,3 @@
--- Your SQL goes here
 CREATE TABLE todos (
   completed BOOLEAN NOT NULL DEFAULT FALSE,
   label VARCHAR NOT NULL,
