@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "humao.rest-client",
+    "rust-lang.rust-analyzer",
+    "usernamehw.errorlens",
+    "ms-vscode-remote.remote-containers",
+    "mhutchie.git-graph"
+  ]
+}
