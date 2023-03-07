@@ -7,10 +7,3 @@ pub struct Todo {
     pub label: String,
     pub id: i32,
 }
-
-impl Todo {
-    pub fn to_string(&self) -> String {
-        let check = if self.completed { "[x}" } else { "[ ]" };
-        format!("{} {} #{}", check, self.label, self.id)
-    }
-}

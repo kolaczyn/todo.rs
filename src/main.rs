@@ -1,26 +1,29 @@
 mod todo;
 
-use sqlx::{Connection, SqliteConnection};
+use std::sync::Arc;
+
+use sqlx::{Connection, Pool, Sqlite, SqliteConnection, SqlitePool};
 use tide::Request;
 
 use crate::todo::Todo;
 
-async fn get_hello_word(_req: Request<()>) -> tide::Result<String> {
+async fn get_hello_word(_req: Request<State>) -> tide::Result<String> {
     Ok(String::from("Hello world"))
 }
 
-async fn get_todos(_req: Request<()>) -> tide::Result<String> {
-    let mut conn = get_connection().await?;
+async fn get_todos(req: Request<State>) -> tide::Result<String> {
+    let pool = req.state().connection_pool.clone();
     let todos: Vec<Todo> = sqlx::query_as("SELECT completed, label, id FROM todos")
-        .fetch_all(&mut conn)
+        .fetch_all(&pool)
         .await?;
 
     Ok(serde_json::to_string_pretty(&todos)?)
 }
 
-async fn get_todo(req: Request<()>) -> tide::Result<String> {
+async fn get_todo(req: Request<State>) -> tide::Result<String> {
     let id: i32 = req.param("id")?.parse()?;
-    let mut conn = get_connection().await?;
+    let pool = req.state().connection_pool.clone();
+
     let todos: Vec<Todo> = sqlx::query_as(
         r#"
         SELECT completed, label, id
@@ -29,20 +32,20 @@ async fn get_todo(req: Request<()>) -> tide::Result<String> {
         "#,
     )
     .bind(id)
-    .fetch_all(&mut conn)
+    .fetch_all(&pool)
     .await?;
 
     Ok(serde_json::to_string_pretty(&todos)?)
 }
 
-async fn create_todo(req: Request<()>) -> tide::Result<String> {
+async fn create_todo(req: Request<State>) -> tide::Result<String> {
     let label: String = req.param("label")?.parse()?;
-    let mut conn = get_connection().await?;
+    let pool = req.state().connection_pool.clone();
 
     let rows_affected = sqlx::query("INSERT INTO todos(completed, label) VALUES($1, $2)")
         .bind(false)
         .bind(label)
-        .execute(&mut conn)
+        .execute(&pool)
         .await;
 
     match rows_affected {
@@ -51,17 +54,28 @@ async fn create_todo(req: Request<()>) -> tide::Result<String> {
     }
 }
 
-async fn get_connection() -> Result<SqliteConnection, sqlx::Error> {
-    SqliteConnection::connect("sqlite:db.sql").await
+#[derive(Clone)]
+struct State {
+    connection_pool: Pool<Sqlite>,
+}
+
+impl State {
+    async fn new() -> Result<Self, sqlx::Error> {
+        let connection_pool = SqlitePool::connect("db.sql").await?;
+        Ok(Self { connection_pool })
+    }
 }
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
-    let mut app = tide::new();
-    let mut conn = get_connection();
+    let state = State::new().await?;
+    let mut app = tide::with_state(state);
+
+    app.with(tide::log::LogMiddleware::new());
 
     app.at("/hello").get(get_hello_word);
     app.at("/todos").get(get_todos);
+
     app.at("/todos/:id").get(get_todo);
     // this shouldn't be a GET, but whatever :p
     app.at("/create-todo/:label").get(create_todo);
