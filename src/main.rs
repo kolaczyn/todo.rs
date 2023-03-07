@@ -113,6 +113,24 @@ async fn update_todo_endpoint(mut req: Request<State>) -> tide::Result<String> {
     Ok(serde_json::to_string_pretty(&new_todo_db)?)
 }
 
+async fn delete_todo_db(pool: &SqlitePool, id: i64) -> Result<Todo, sqlx::Error> {
+    let todo = get_todo_db(pool, id).await?;
+    sqlx::query!("DELETE FROM todos WHERE id = ?", id)
+        .execute(pool)
+        .await?;
+
+    Ok(todo)
+}
+
+async fn delete_todo_endpoint(req: Request<State>) -> tide::Result<String> {
+    let id: i64 = req.param("id")?.parse()?;
+    let pool = req.state().connection_pool.clone();
+
+    let todo_db = delete_todo_db(&pool, id).await?;
+
+    Ok(serde_json::to_string_pretty(&todo_db)?)
+}
+
 #[derive(Clone)]
 struct State {
     connection_pool: SqlitePool,
@@ -141,6 +159,7 @@ async fn main() -> tide::Result<()> {
     app.at("/todos/:id").get(get_todo_endpoint);
     app.at("/todos").post(create_todo_endpoint);
     app.at("/todos/:id").patch(update_todo_endpoint);
+    app.at("/todos/:id").delete(delete_todo_endpoint);
 
     app.listen(format!("0.0.0.0:{}", port)).await?;
     Ok(())
