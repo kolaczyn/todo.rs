@@ -9,22 +9,22 @@ async fn get_hello_word_endpoint(_req: Request<State>) -> tide::Result<String> {
     Ok(String::from("Hello world"))
 }
 
-async fn get_todos_db(pool: SqlitePool) -> Result<Vec<Todo>, sqlx::Error> {
+async fn get_todos_db(pool: &SqlitePool) -> Result<Vec<Todo>, sqlx::Error> {
     let todos: Vec<Todo> = sqlx::query_as("SELECT completed, label, id FROM todos")
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await?;
 
     Ok(todos)
 }
 
 async fn get_todos_endpoint(req: Request<State>) -> tide::Result<String> {
-    let pool: SqlitePool = req.state().connection_pool.clone();
-    let todos = get_todos_db(pool).await?;
+    let pool = req.state().connection_pool.clone();
+    let todos = get_todos_db(&pool).await?;
 
     Ok(serde_json::to_string_pretty(&todos)?)
 }
 
-async fn get_todo_db(pool: SqlitePool, id: i32) -> Result<Todo, sqlx::Error> {
+async fn get_todo_db(pool: &SqlitePool, id: i32) -> Result<Todo, sqlx::Error> {
     let todos: Todo = sqlx::query_as(
         r#"
         SELECT completed, label, id
@@ -33,7 +33,7 @@ async fn get_todo_db(pool: SqlitePool, id: i32) -> Result<Todo, sqlx::Error> {
         "#,
     )
     .bind(id)
-    .fetch_one(&pool)
+    .fetch_one(pool)
     .await?;
 
     Ok(todos)
@@ -43,16 +43,16 @@ async fn get_todo_endpoint(req: Request<State>) -> tide::Result<String> {
     let id: i32 = req.param("id")?.parse()?;
     let pool = req.state().connection_pool.clone();
 
-    let todos = get_todo_db(pool, id).await?;
+    let todos = get_todo_db(&pool, id).await?;
 
     Ok(serde_json::to_string_pretty(&todos)?)
 }
 
-async fn create_todo_db(pool: SqlitePool, label: String) -> Result<(), sqlx::Error> {
+async fn create_todo_db(pool: &SqlitePool, label: String) -> Result<(), sqlx::Error> {
     let _rows_affected = sqlx::query("INSERT INTO todos(completed, label) VALUES($1, $2)")
         .bind(false)
         .bind(label)
-        .execute(&pool)
+        .execute(pool)
         .await;
 
     Ok(())
@@ -62,7 +62,7 @@ async fn create_todo_endpoint(req: Request<State>) -> tide::Result<String> {
     let label: String = req.param("label")?.parse()?;
     let pool = req.state().connection_pool.clone();
 
-    let result = create_todo_db(pool, label).await;
+    let result = create_todo_db(&pool, label).await;
 
     match result {
         Ok(_) => Ok(String::from("Done")),
@@ -70,8 +70,29 @@ async fn create_todo_endpoint(req: Request<State>) -> tide::Result<String> {
     }
 }
 
-async fn set_todo_endpoint(_req: Request<State>) -> tide::Result<String> {
-    todo!()
+async fn set_todo_db(pool: &SqlitePool, new_todo: Todo) -> Result<(), sqlx::Error> {
+    let _rows_affected = sqlx::query("UPDATE todos SET completed = $1 WHERE id = $2")
+        .bind(new_todo.completed)
+        .bind(new_todo.id)
+        .execute(pool)
+        .await;
+
+    Ok(())
+}
+
+async fn set_todo_endpoint(req: Request<State>) -> tide::Result<String> {
+    let id: i32 = req.param("id")?.parse()?;
+    let completed: bool = req.param("completed")?.parse()?;
+    let pool = req.state().connection_pool.clone();
+
+    let todo = get_todo_db(&pool, id).await?;
+    let new_todo = Todo { completed, ..todo };
+
+    let result = set_todo_db(&pool, new_todo).await;
+    match result {
+        Ok(_) => Ok(String::from("Done")),
+        Err(_) => Ok(String::from("Something went wrong")),
+    }
 }
 
 #[derive(Clone)]
@@ -81,8 +102,10 @@ struct State {
 
 impl State {
     async fn new() -> Result<Self, sqlx::Error> {
-        let connection_pool = SqlitePool::connect("db.sql").await?;
-        Ok(Self { connection_pool })
+        Ok(Self {
+            // TODO should read connection string from env
+            connection_pool: SqlitePool::connect("db.sql").await?,
+        })
     }
 }
 
