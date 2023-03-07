@@ -1,6 +1,8 @@
 mod todo;
 
+use dotenv::dotenv;
 use sqlx::SqlitePool;
+use std::env;
 use tide::Request;
 
 use crate::todo::Todo;
@@ -101,17 +103,20 @@ struct State {
 }
 
 impl State {
-    async fn new() -> Result<Self, sqlx::Error> {
+    async fn new(database_url: String) -> Result<Self, sqlx::Error> {
         Ok(Self {
-            // TODO should read connection string from env
-            connection_pool: SqlitePool::connect("db.sql").await?,
+            connection_pool: SqlitePool::connect(&database_url).await?,
         })
     }
 }
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
-    let state = State::new().await?;
+    dotenv()?;
+    let port = env::var("PORT").unwrap_or(String::from("8080"));
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
+
+    let state = State::new(database_url).await?;
     let mut app = tide::with_state(state);
 
     tide::log::start();
@@ -124,7 +129,6 @@ async fn main() -> tide::Result<()> {
     app.at("/create-todo/:label").get(create_todo_endpoint);
     app.at("/set-todo/:id/:completed").get(set_todo_endpoint);
 
-    println!("Listening on http://localhost:8080");
-    app.listen("0.0.0.0:8080").await?;
+    app.listen(format!("0.0.0.0:{}", port)).await?;
     Ok(())
 }
