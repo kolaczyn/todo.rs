@@ -1,29 +1,31 @@
 mod todo;
 
-use std::sync::Arc;
-
-use sqlx::{Connection, Pool, Sqlite, SqliteConnection, SqlitePool};
+use sqlx::SqlitePool;
 use tide::Request;
 
 use crate::todo::Todo;
 
-async fn get_hello_word(_req: Request<State>) -> tide::Result<String> {
+async fn get_hello_word_endpoint(_req: Request<State>) -> tide::Result<String> {
     Ok(String::from("Hello world"))
 }
 
-async fn get_todos(req: Request<State>) -> tide::Result<String> {
-    let pool = req.state().connection_pool.clone();
+async fn get_todos_db(pool: SqlitePool) -> Result<Vec<Todo>, sqlx::Error> {
     let todos: Vec<Todo> = sqlx::query_as("SELECT completed, label, id FROM todos")
         .fetch_all(&pool)
         .await?;
 
+    Ok(todos)
+}
+
+async fn get_todos_endpoint(req: Request<State>) -> tide::Result<String> {
+    let pool: SqlitePool = req.state().connection_pool.clone();
+    let todos = get_todos_db(pool).await?;
+
     Ok(serde_json::to_string_pretty(&todos)?)
 }
 
-async fn get_todo(req: Request<State>) -> tide::Result<String> {
-    let id: i32 = req.param("id")?.parse()?;
-    let pool = req.state().connection_pool.clone();
-
+// TODO change return type: from Vec<Todo> to Todo
+async fn get_todo_db(pool: SqlitePool, id: i32) -> Result<Vec<Todo>, sqlx::Error> {
     let todos: Vec<Todo> = sqlx::query_as(
         r#"
         SELECT completed, label, id
@@ -35,20 +37,35 @@ async fn get_todo(req: Request<State>) -> tide::Result<String> {
     .fetch_all(&pool)
     .await?;
 
+    Ok(todos)
+}
+
+async fn get_todo_endpoint(req: Request<State>) -> tide::Result<String> {
+    let id: i32 = req.param("id")?.parse()?;
+    let pool = req.state().connection_pool.clone();
+
+    let todos = get_todo_db(pool, id).await?;
+
     Ok(serde_json::to_string_pretty(&todos)?)
 }
 
-async fn create_todo(req: Request<State>) -> tide::Result<String> {
-    let label: String = req.param("label")?.parse()?;
-    let pool = req.state().connection_pool.clone();
-
-    let rows_affected = sqlx::query("INSERT INTO todos(completed, label) VALUES($1, $2)")
+async fn create_todo_db(pool: SqlitePool, label: String) -> Result<(), sqlx::Error> {
+    let _rows_affected = sqlx::query("INSERT INTO todos(completed, label) VALUES($1, $2)")
         .bind(false)
         .bind(label)
         .execute(&pool)
         .await;
 
-    match rows_affected {
+    Ok(())
+}
+
+async fn create_todo_endpoint(req: Request<State>) -> tide::Result<String> {
+    let label: String = req.param("label")?.parse()?;
+    let pool = req.state().connection_pool.clone();
+
+    let result = create_todo_db(pool, label).await;
+
+    match result {
         Ok(_) => Ok(String::from("Done")),
         Err(_) => Ok(String::from("Something went wrong")),
     }
@@ -56,7 +73,7 @@ async fn create_todo(req: Request<State>) -> tide::Result<String> {
 
 #[derive(Clone)]
 struct State {
-    connection_pool: Pool<Sqlite>,
+    connection_pool: SqlitePool,
 }
 
 impl State {
@@ -73,12 +90,13 @@ async fn main() -> tide::Result<()> {
 
     app.with(tide::log::LogMiddleware::new());
 
-    app.at("/hello").get(get_hello_word);
-    app.at("/todos").get(get_todos);
+    app.at("/hello").get(get_hello_word_endpoint);
+    app.at("/todos").get(get_todos_endpoint);
 
-    app.at("/todos/:id").get(get_todo);
+    app.at("/todos/:id").get(get_todo_endpoint);
     // this shouldn't be a GET, but whatever :p
-    app.at("/create-todo/:label").get(create_todo);
+    app.at("/create-todo/:label").get(create_todo_endpoint);
+    app.at("/set-todo/:id/:completed").get(create_todo_endpoint);
 
     println!("Listening on http://localhost:8080");
     app.listen("0.0.0.0:8080").await?;
