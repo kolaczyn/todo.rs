@@ -1,6 +1,3 @@
 {
-  "editor.formatOnSave": true,
-  "files.associations": {
-    "todos.notes": "json"
-  }
+  "editor.formatOnSave": true
 }

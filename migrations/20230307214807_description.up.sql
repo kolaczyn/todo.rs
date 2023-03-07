@@ -1,0 +1,2 @@
+ALTER TABLE todos
+ADD COLUMN description VARCHAR

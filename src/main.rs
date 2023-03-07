@@ -9,9 +9,19 @@ use todo::{CreateTodoDto, UpdateTodoDto};
 use crate::todo::Todo;
 
 async fn get_todos_db(pool: &SqlitePool) -> Result<Vec<Todo>, sqlx::Error> {
-    let todos: Vec<Todo> = sqlx::query_as("SELECT completed, label, id FROM todos")
+    let todos_db = sqlx::query!("SELECT completed, label, id, description FROM todos")
         .fetch_all(pool)
         .await?;
+
+    let todos = todos_db
+        .iter()
+        .map(|x| Todo {
+            id: x.id,
+            label: x.label.to_owned(),
+            completed: x.completed,
+            description: x.description.to_owned(),
+        })
+        .collect();
 
     Ok(todos)
 }
@@ -24,18 +34,23 @@ async fn get_todos_endpoint(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn get_todo_db(pool: &SqlitePool, id: i32) -> Result<Todo, sqlx::Error> {
-    let todos: Todo = sqlx::query_as(
-        r#"
-        SELECT completed, label, id
+    let todo = sqlx::query!(
+        "
+        SELECT completed, label, id, description
         FROM todos
-        WHERE id = $1
-        "#,
+        WHERE id = ?
+        ",
+        id
     )
-    .bind(id)
     .fetch_one(pool)
     .await?;
 
-    Ok(todos)
+    Ok(Todo {
+        id: todo.id,
+        label: todo.label,
+        completed: todo.completed,
+        description: todo.description,
+    })
 }
 
 async fn get_todo_endpoint(req: Request<State>) -> tide::Result<String> {
@@ -48,11 +63,13 @@ async fn get_todo_endpoint(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn create_todo_db(pool: &SqlitePool, label: String) -> Result<(), sqlx::Error> {
-    let _rows_affected = sqlx::query("INSERT INTO todos(completed, label) VALUES($1, $2)")
-        .bind(false)
-        .bind(label)
-        .execute(pool)
-        .await;
+    let _rows_affected = sqlx::query!(
+        "INSERT INTO todos(completed, label) VALUES(?1, ?2)",
+        false,
+        label
+    )
+    .execute(pool)
+    .await;
 
     Ok(())
 }
@@ -70,11 +87,13 @@ async fn create_todo_endpoint(mut req: Request<State>) -> tide::Result<String> {
 }
 
 async fn update_todo_db(pool: &SqlitePool, new_todo: Todo) -> Result<(), sqlx::Error> {
-    let _rows_affected = sqlx::query("UPDATE todos SET completed = $1 WHERE id = $2")
-        .bind(new_todo.completed)
-        .bind(new_todo.id)
-        .execute(pool)
-        .await;
+    let _rows_affected = sqlx::query!(
+        "UPDATE todos SET completed = ?1 WHERE id = ?2",
+        new_todo.completed,
+        new_todo.id
+    )
+    .execute(pool)
+    .await;
 
     Ok(())
 }

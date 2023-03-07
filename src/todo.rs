@@ -3,9 +3,10 @@ use std::cmp::Eq;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq, sqlx::FromRow)]
 pub struct Todo {
-    pub completed: bool,
+    pub id: i64,
     pub label: String,
-    pub id: i32,
+    pub description: Option<String>,
+    pub completed: bool,
 }
 #[derive(Serialize, Deserialize)]
 pub struct CreateTodoDto {
