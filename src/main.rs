@@ -114,7 +114,7 @@ async fn main() -> tide::Result<()> {
     let state = State::new().await?;
     let mut app = tide::with_state(state);
 
-    app.with(tide::log::LogMiddleware::new());
+    tide::log::start();
 
     app.at("/hello").get(get_hello_word_endpoint);
     app.at("/todos").get(get_todos_endpoint);
