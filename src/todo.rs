@@ -7,3 +7,12 @@ pub struct Todo {
     pub label: String,
     pub id: i32,
 }
+#[derive(Serialize, Deserialize)]
+pub struct CreateTodoDto {
+    pub label: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UpdateTodoDto {
+    pub completed: bool,
+}

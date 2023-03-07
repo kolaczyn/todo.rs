@@ -1,2 +1,7 @@
 
-GET http://localhost:8080/create-todo/label-here
+POST http://localhost:8080/todos
+Content-Type: application/json
+
+{
+  "label": "Read Jojo Part 8"
+}

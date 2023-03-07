@@ -4,12 +4,9 @@ use dotenv::dotenv;
 use sqlx::SqlitePool;
 use std::env;
 use tide::Request;
+use todo::{CreateTodoDto, UpdateTodoDto};
 
 use crate::todo::Todo;
-
-async fn get_hello_word_endpoint(_req: Request<State>) -> tide::Result<String> {
-    Ok(String::from("Hello world"))
-}
 
 async fn get_todos_db(pool: &SqlitePool) -> Result<Vec<Todo>, sqlx::Error> {
     let todos: Vec<Todo> = sqlx::query_as("SELECT completed, label, id FROM todos")
@@ -60,8 +57,8 @@ async fn create_todo_db(pool: &SqlitePool, label: String) -> Result<(), sqlx::Er
     Ok(())
 }
 
-async fn create_todo_endpoint(req: Request<State>) -> tide::Result<String> {
-    let label: String = req.param("label")?.parse()?;
+async fn create_todo_endpoint(mut req: Request<State>) -> tide::Result<String> {
+    let label = req.body_json::<CreateTodoDto>().await?.label;
     let pool = req.state().connection_pool.clone();
 
     let result = create_todo_db(&pool, label).await;
@@ -72,7 +69,7 @@ async fn create_todo_endpoint(req: Request<State>) -> tide::Result<String> {
     }
 }
 
-async fn set_todo_db(pool: &SqlitePool, new_todo: Todo) -> Result<(), sqlx::Error> {
+async fn update_todo_db(pool: &SqlitePool, new_todo: Todo) -> Result<(), sqlx::Error> {
     let _rows_affected = sqlx::query("UPDATE todos SET completed = $1 WHERE id = $2")
         .bind(new_todo.completed)
         .bind(new_todo.id)
@@ -82,15 +79,15 @@ async fn set_todo_db(pool: &SqlitePool, new_todo: Todo) -> Result<(), sqlx::Erro
     Ok(())
 }
 
-async fn set_todo_endpoint(req: Request<State>) -> tide::Result<String> {
+async fn update_todo_endpoint(mut req: Request<State>) -> tide::Result<String> {
     let id: i32 = req.param("id")?.parse()?;
-    let completed: bool = req.param("completed")?.parse()?;
+    let completed = req.body_json::<UpdateTodoDto>().await?.completed;
     let pool = req.state().connection_pool.clone();
 
     let todo = get_todo_db(&pool, id).await?;
     let new_todo = Todo { completed, ..todo };
 
-    let result = set_todo_db(&pool, new_todo).await;
+    let result = update_todo_db(&pool, new_todo).await;
     match result {
         Ok(_) => Ok(String::from("Done")),
         Err(_) => Ok(String::from("Something went wrong")),
@@ -121,13 +118,10 @@ async fn main() -> tide::Result<()> {
 
     tide::log::start();
 
-    app.at("/hello").get(get_hello_word_endpoint);
     app.at("/todos").get(get_todos_endpoint);
-
     app.at("/todos/:id").get(get_todo_endpoint);
-    // this shouldn't be a GET, but whatever :p
-    app.at("/create-todo/:label").get(create_todo_endpoint);
-    app.at("/set-todo/:id/:completed").get(set_todo_endpoint);
+    app.at("/todos").post(create_todo_endpoint);
+    app.at("/todos/:id").patch(update_todo_endpoint);
 
     app.listen(format!("0.0.0.0:{}", port)).await?;
     Ok(())
