@@ -24,9 +24,8 @@ async fn get_todos_endpoint(req: Request<State>) -> tide::Result<String> {
     Ok(serde_json::to_string_pretty(&todos)?)
 }
 
-// TODO change return type: from Vec<Todo> to Todo
-async fn get_todo_db(pool: SqlitePool, id: i32) -> Result<Vec<Todo>, sqlx::Error> {
-    let todos: Vec<Todo> = sqlx::query_as(
+async fn get_todo_db(pool: SqlitePool, id: i32) -> Result<Todo, sqlx::Error> {
+    let todos: Todo = sqlx::query_as(
         r#"
         SELECT completed, label, id
         FROM todos
@@ -34,7 +33,7 @@ async fn get_todo_db(pool: SqlitePool, id: i32) -> Result<Vec<Todo>, sqlx::Error
         "#,
     )
     .bind(id)
-    .fetch_all(&pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(todos)
@@ -71,6 +70,10 @@ async fn create_todo_endpoint(req: Request<State>) -> tide::Result<String> {
     }
 }
 
+async fn set_todo_endpoint(_req: Request<State>) -> tide::Result<String> {
+    todo!()
+}
+
 #[derive(Clone)]
 struct State {
     connection_pool: SqlitePool,
@@ -96,7 +99,7 @@ async fn main() -> tide::Result<()> {
     app.at("/todos/:id").get(get_todo_endpoint);
     // this shouldn't be a GET, but whatever :p
     app.at("/create-todo/:label").get(create_todo_endpoint);
-    app.at("/set-todo/:id/:completed").get(create_todo_endpoint);
+    app.at("/set-todo/:id/:completed").get(set_todo_endpoint);
 
     println!("Listening on http://localhost:8080");
     app.listen("0.0.0.0:8080").await?;
