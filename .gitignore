@@ -1,4 +1,6 @@
 /target
+backend/target
+frontend/target
 todos.json
 db.sql
 db.sql-shm
