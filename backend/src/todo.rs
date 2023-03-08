@@ -8,6 +8,7 @@ pub struct Todo {
     pub description: Option<String>,
     pub completed: bool,
 }
+
 #[derive(Serialize, Deserialize)]
 pub struct CreateTodoDto {
     pub label: String,

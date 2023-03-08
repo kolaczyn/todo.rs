@@ -9,4 +9,5 @@
 - 3\. Setup frontend:
   - 1\. `rustup target add wasm32-unknown-unknown`
   - 2\. `cargo install --locked trunk`
-  - 3\. `cd fronted && trunk serve --port 8000`
+  - 3\. Allow CORS via browser extension (for now, I'll have to fix this later :p)
+  - 4\. `cd fronted && trunk serve --port 8000`
