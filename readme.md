@@ -1,7 +1,12 @@
 ## How to run
 
-1. Setup rust on your system
-1. `cargo install sqlx-cli`
-1. `touch db.sql`
-1. `sqlx migrate run --source backend/migrations`
-1. cargo run backend
+- 1\. Setup rust on your system
+- 2\. Setup backend:
+  - 1\. `cargo install sqlx-cli`
+  - 2\. `touch db.sql`
+  - 3\. `sqlx migrate run --source backend/migrations`
+  - 4\. `cargo run --bin backend`
+- 3\. Setup frontend:
+  - 1\. `rustup target add wasm32-unknown-unknown`
+  - 2\. `cargo install --locked trunk`
+  - 3\. `cd fronted && trunk serve --port 8000`
