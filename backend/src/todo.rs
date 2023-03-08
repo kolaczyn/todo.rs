@@ -3,7 +3,7 @@ use std::cmp::Eq;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq, sqlx::FromRow)]
 pub struct Todo {
-    pub id: i64,
+    pub id: i32,
     pub label: String,
     pub description: Option<String>,
     pub completed: bool,

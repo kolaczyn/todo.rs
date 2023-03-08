@@ -1,14 +1,13 @@
-mod todo;
+use std::env;
 
 use dotenv::dotenv;
-use sqlx::SqlitePool;
-use std::env;
+use sqlx::PgPool;
 use tide::Request;
-use todo::{CreateTodoDto, UpdateTodoDto};
+use todo::{CreateTodoDto, Todo, UpdateTodoDto};
 
-use crate::todo::Todo;
+mod todo;
 
-async fn get_todos_db(pool: &SqlitePool) -> Result<Vec<Todo>, sqlx::Error> {
+async fn get_todos_db(pool: &PgPool) -> Result<Vec<Todo>, sqlx::Error> {
     let todos_db = sqlx::query!("SELECT completed, label, id, description FROM todos")
         .fetch_all(pool)
         .await?;
@@ -27,18 +26,18 @@ async fn get_todos_db(pool: &SqlitePool) -> Result<Vec<Todo>, sqlx::Error> {
 }
 
 async fn get_todos_endpoint(req: Request<State>) -> tide::Result<String> {
-    let pool = req.state().connection_pool.clone();
+    let pool = req.state().pool.clone();
     let todos = get_todos_db(&pool).await?;
 
     Ok(serde_json::to_string_pretty(&todos)?)
 }
 
-async fn get_todo_db(pool: &SqlitePool, id: i64) -> Result<Todo, sqlx::Error> {
+async fn get_todo_db(pool: &PgPool, id: i32) -> Result<Todo, sqlx::Error> {
     let todo = sqlx::query!(
         "
         SELECT completed, label, id, description
         FROM todos
-        WHERE id = ?
+        WHERE id = $1
         ",
         id
     )
@@ -54,38 +53,40 @@ async fn get_todo_db(pool: &SqlitePool, id: i64) -> Result<Todo, sqlx::Error> {
 }
 
 async fn get_todo_endpoint(req: Request<State>) -> tide::Result<String> {
-    let id: i64 = req.param("id")?.parse()?;
-    let pool = req.state().connection_pool.clone();
+    let id: i32 = req.param("id")?.parse()?;
+    let pool = req.state().pool.clone();
 
     let todos = get_todo_db(&pool, id).await?;
 
     Ok(serde_json::to_string_pretty(&todos)?)
 }
 
-async fn create_todo_db(pool: &SqlitePool, label: String) -> Result<Todo, sqlx::Error> {
+async fn create_todo_db(pool: &PgPool, label: String) -> Result<Todo, sqlx::Error> {
     let result = sqlx::query!(
-        "INSERT INTO todos(completed, label) VALUES(?1, ?2)",
+        r#"INSERT INTO todos(completed, label) VALUES($1, $2) RETURNING id"#,
         false,
         label
     )
-    .execute(pool)
+    .fetch_one(pool)
     .await?;
 
-    let todo = get_todo_db(pool, result.last_insert_rowid()).await?;
+    // TODO this could be rewritten more efficiently - RETURNING could return the whole todo
+    // But I should create a mapper or something similar
+    let todo = get_todo_db(pool, result.id).await?;
     Ok(todo)
 }
 
 async fn create_todo_endpoint(mut req: Request<State>) -> tide::Result<String> {
     let label = req.body_json::<CreateTodoDto>().await?.label;
-    let pool = req.state().connection_pool.clone();
+    let pool = req.state().pool.clone();
 
     let todo = create_todo_db(&pool, label).await?;
     Ok(serde_json::to_string_pretty(&todo)?)
 }
 
-async fn update_todo_db(pool: &SqlitePool, new_todo: Todo) -> Result<Todo, sqlx::Error> {
+async fn update_todo_db(pool: &PgPool, new_todo: Todo) -> Result<Todo, sqlx::Error> {
     sqlx::query!(
-        "UPDATE todos SET completed = ?1 WHERE id = ?2",
+        r#"UPDATE todos SET completed = $1 WHERE id = $2"#,
         new_todo.completed,
         new_todo.id
     )
@@ -98,9 +99,9 @@ async fn update_todo_db(pool: &SqlitePool, new_todo: Todo) -> Result<Todo, sqlx:
 }
 
 async fn update_todo_endpoint(mut req: Request<State>) -> tide::Result<String> {
-    let id: i64 = req.param("id")?.parse()?;
+    let id: i32 = req.param("id")?.parse()?;
     let completed = req.body_json::<UpdateTodoDto>().await?.completed;
-    let pool = req.state().connection_pool.clone();
+    let pool = req.state().pool.clone();
 
     // yeah, the names here are pretty confusing :p
     let todo_db = get_todo_db(&pool, id).await?;
@@ -113,9 +114,9 @@ async fn update_todo_endpoint(mut req: Request<State>) -> tide::Result<String> {
     Ok(serde_json::to_string_pretty(&new_todo_db)?)
 }
 
-async fn delete_todo_db(pool: &SqlitePool, id: i64) -> Result<Todo, sqlx::Error> {
+async fn delete_todo_db(pool: &PgPool, id: i32) -> Result<Todo, sqlx::Error> {
     let todo = get_todo_db(pool, id).await?;
-    sqlx::query!("DELETE FROM todos WHERE id = ?", id)
+    sqlx::query!(r#"DELETE FROM todos WHERE id = $1"#, id)
         .execute(pool)
         .await?;
 
@@ -123,8 +124,8 @@ async fn delete_todo_db(pool: &SqlitePool, id: i64) -> Result<Todo, sqlx::Error>
 }
 
 async fn delete_todo_endpoint(req: Request<State>) -> tide::Result<String> {
-    let id: i64 = req.param("id")?.parse()?;
-    let pool = req.state().connection_pool.clone();
+    let id: i32 = req.param("id")?.parse()?;
+    let pool = req.state().pool.clone();
 
     let todo_db = delete_todo_db(&pool, id).await?;
 
@@ -133,13 +134,13 @@ async fn delete_todo_endpoint(req: Request<State>) -> tide::Result<String> {
 
 #[derive(Clone)]
 struct State {
-    connection_pool: SqlitePool,
+    pool: PgPool,
 }
 
 impl State {
     async fn new(database_url: String) -> Result<Self, sqlx::Error> {
         Ok(Self {
-            connection_pool: SqlitePool::connect(&database_url).await?,
+            pool: PgPool::connect(&database_url).await?,
         })
     }
 }
