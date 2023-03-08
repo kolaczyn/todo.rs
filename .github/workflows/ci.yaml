@@ -20,8 +20,5 @@ jobs:
       - name: Run tests
         run: cargo test
       - name: Build
-      - run: cargo install sqlx-cli
-      - run: touch db.sql
-      - run: sqlx migrate run
-      - run: cargo build
+        run: cargo build
 

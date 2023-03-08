@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 sqlx = { version = "0.6.2", features = [
   "postgres",
+  "offline",
   "runtime-async-std-native-tls",
 ] }
 

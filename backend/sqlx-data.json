@@ -1,0 +1,123 @@
+{
+  "db": "PostgreSQL",
+  "183ad1d8316ef2ae5ac6ae4811b8a2bdbaeabbe137a871e26741a419a1aa5b19": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM todos WHERE id = $1"
+  },
+  "26df0fe746d03684246dd71792d8a038b3ae2e615255659ddc0dc2c8ac26aeed": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Bool",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE todos SET completed = $1 WHERE id = $2"
+  },
+  "2e4d12a74eba38f4fedc70ffe07f2e50408bb15c2f192643f7ba1bb6e81271b7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Bool",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "INSERT INTO todos(completed, label) VALUES($1, $2) RETURNING id"
+  },
+  "5e9d59aa834c3be6316d5fa0056fa4862d9f80e667c6c8d2f1072bff87d08267": {
+    "describe": {
+      "columns": [
+        {
+          "name": "completed",
+          "ordinal": 0,
+          "type_info": "Bool"
+        },
+        {
+          "name": "label",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "id",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "description",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "\n        SELECT completed, label, id, description\n        FROM todos\n        WHERE id = $1\n        "
+  },
+  "b10a3d309f7ec7e1a632f7f4b8fb9d6110062c01e3b5015493c5906f854fc5ba": {
+    "describe": {
+      "columns": [
+        {
+          "name": "completed",
+          "ordinal": 0,
+          "type_info": "Bool"
+        },
+        {
+          "name": "label",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "id",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "description",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT completed, label, id, description FROM todos"
+  }
+}
