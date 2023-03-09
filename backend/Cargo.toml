@@ -16,3 +16,4 @@ rand = "0.8.5"
 tide = "0.16.0"
 async-std = { version = "1.8.0", features = ["attributes"] }
 dotenv = "0.15.0"
+anyhow = "1.0.69"

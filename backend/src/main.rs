@@ -10,9 +10,8 @@ mod todos;
 async fn main() -> tide::Result<()> {
     dotenv()?;
     let port = env::var("PORT").unwrap_or(String::from("8080"));
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
 
-    let state = State::new(database_url).await?;
+    let state = State::new().await?;
     let mut app = tide::new();
 
     tide::log::start();
