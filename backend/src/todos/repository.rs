@@ -1,15 +1,15 @@
 use sqlx::PgPool;
 
-use crate::todo::Todo;
+use super::dto::TodoDto;
 
-pub async fn get_todos_db(pool: &PgPool) -> Result<Vec<Todo>, sqlx::Error> {
+pub async fn get_todos_db(pool: &PgPool) -> Result<Vec<TodoDto>, sqlx::Error> {
     let todos_db = sqlx::query!("SELECT completed, label, id, description FROM todos")
         .fetch_all(pool)
         .await?;
 
     let todos = todos_db
         .iter()
-        .map(|x| Todo {
+        .map(|x| TodoDto {
             id: x.id,
             label: x.label.to_owned(),
             completed: x.completed,
@@ -20,7 +20,7 @@ pub async fn get_todos_db(pool: &PgPool) -> Result<Vec<Todo>, sqlx::Error> {
     Ok(todos)
 }
 
-pub async fn get_todo_db(pool: &PgPool, id: i32) -> Result<Todo, sqlx::Error> {
+pub async fn get_todo_db(pool: &PgPool, id: i32) -> Result<TodoDto, sqlx::Error> {
     let todo = sqlx::query!(
         "
         SELECT completed, label, id, description
@@ -32,7 +32,7 @@ pub async fn get_todo_db(pool: &PgPool, id: i32) -> Result<Todo, sqlx::Error> {
     .fetch_one(pool)
     .await?;
 
-    Ok(Todo {
+    Ok(TodoDto {
         id: todo.id,
         label: todo.label,
         completed: todo.completed,
@@ -40,7 +40,7 @@ pub async fn get_todo_db(pool: &PgPool, id: i32) -> Result<Todo, sqlx::Error> {
     })
 }
 
-pub async fn create_todo_db(pool: &PgPool, label: String) -> Result<Todo, sqlx::Error> {
+pub async fn create_todo_db(pool: &PgPool, label: String) -> Result<TodoDto, sqlx::Error> {
     let result = sqlx::query!(
         r#"INSERT INTO todos(completed, label) VALUES($1, $2) RETURNING id"#,
         false,
@@ -55,7 +55,7 @@ pub async fn create_todo_db(pool: &PgPool, label: String) -> Result<Todo, sqlx::
     Ok(todo)
 }
 
-pub async fn update_todo_db(pool: &PgPool, new_todo: Todo) -> Result<Todo, sqlx::Error> {
+pub async fn update_todo_db(pool: &PgPool, new_todo: TodoDto) -> Result<TodoDto, sqlx::Error> {
     sqlx::query!(
         r#"UPDATE todos SET completed = $1 WHERE id = $2"#,
         new_todo.completed,
@@ -69,7 +69,7 @@ pub async fn update_todo_db(pool: &PgPool, new_todo: Todo) -> Result<Todo, sqlx:
     Ok(todo)
 }
 
-pub async fn delete_todo_db(pool: &PgPool, id: i32) -> Result<Todo, sqlx::Error> {
+pub async fn delete_todo_db(pool: &PgPool, id: i32) -> Result<TodoDto, sqlx::Error> {
     let todo = get_todo_db(pool, id).await?;
     sqlx::query!(r#"DELETE FROM todos WHERE id = $1"#, id)
         .execute(pool)

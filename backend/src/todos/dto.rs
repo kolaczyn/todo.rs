@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
-use std::cmp::Eq;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq, sqlx::FromRow)]
-pub struct Todo {
+#[derive(Serialize, Deserialize)]
+pub struct TodoDto {
     pub id: i32,
     pub label: String,
     pub description: Option<String>,

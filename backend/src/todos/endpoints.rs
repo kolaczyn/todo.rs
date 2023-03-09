@@ -1,12 +1,10 @@
 use tide::Request;
 
-use crate::{
-    state::State,
-    todo::{CreateTodoDto, Todo, UpdateTodoDto},
-};
+use crate::state::State;
 
-use super::repository::{
-    create_todo_db, delete_todo_db, get_todo_db, get_todos_db, update_todo_db,
+use super::{
+    dto::{CreateTodoDto, TodoDto, UpdateTodoDto},
+    repository::{create_todo_db, delete_todo_db, get_todo_db, get_todos_db, update_todo_db},
 };
 
 pub async fn get_todos_endpoint(req: Request<State>) -> tide::Result<String> {
@@ -40,7 +38,7 @@ pub async fn update_todo_endpoint(mut req: Request<State>) -> tide::Result<Strin
 
     // yeah, the names here are pretty confusing :p
     let todo_db = get_todo_db(&pool, id).await?;
-    let new_todo = Todo {
+    let new_todo = TodoDto {
         completed,
         ..todo_db
     };
@@ -56,4 +54,14 @@ pub async fn delete_todo_endpoint(req: Request<State>) -> tide::Result<String> {
     let todo_db = delete_todo_db(&pool, id).await?;
 
     Ok(serde_json::to_string_pretty(&todo_db)?)
+}
+
+pub fn todo_endpoints(state: State) -> tide::Server<State> {
+    let mut api = tide::with_state(state);
+    api.at("/").get(get_todos_endpoint);
+    api.at("/:id").get(get_todo_endpoint);
+    api.at("/").post(create_todo_endpoint);
+    api.at("/:id").patch(update_todo_endpoint);
+    api.at("/:id").delete(delete_todo_endpoint);
+    api
 }
