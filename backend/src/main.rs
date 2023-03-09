@@ -1,149 +1,17 @@
 use std::env;
 
 use dotenv::dotenv;
-use sqlx::PgPool;
-use tide::Request;
-use todo::{CreateTodoDto, Todo, UpdateTodoDto};
 
+use crate::{
+    state::State,
+    todos::endpoints::{
+        create_todo_endpoint, delete_todo_endpoint, get_todo_endpoint, get_todos_endpoint,
+        update_todo_endpoint,
+    },
+};
+mod state;
 mod todo;
-
-async fn get_todos_db(pool: &PgPool) -> Result<Vec<Todo>, sqlx::Error> {
-    let todos_db = sqlx::query!("SELECT completed, label, id, description FROM todos")
-        .fetch_all(pool)
-        .await?;
-
-    let todos = todos_db
-        .iter()
-        .map(|x| Todo {
-            id: x.id,
-            label: x.label.to_owned(),
-            completed: x.completed,
-            description: x.description.to_owned(),
-        })
-        .collect();
-
-    Ok(todos)
-}
-
-async fn get_todos_endpoint(req: Request<State>) -> tide::Result<String> {
-    let pool = req.state().pool.clone();
-    let todos = get_todos_db(&pool).await?;
-
-    Ok(serde_json::to_string_pretty(&todos)?)
-}
-
-async fn get_todo_db(pool: &PgPool, id: i32) -> Result<Todo, sqlx::Error> {
-    let todo = sqlx::query!(
-        "
-        SELECT completed, label, id, description
-        FROM todos
-        WHERE id = $1
-        ",
-        id
-    )
-    .fetch_one(pool)
-    .await?;
-
-    Ok(Todo {
-        id: todo.id,
-        label: todo.label,
-        completed: todo.completed,
-        description: todo.description,
-    })
-}
-
-async fn get_todo_endpoint(req: Request<State>) -> tide::Result<String> {
-    let id: i32 = req.param("id")?.parse()?;
-    let pool = req.state().pool.clone();
-
-    let todos = get_todo_db(&pool, id).await?;
-
-    Ok(serde_json::to_string_pretty(&todos)?)
-}
-
-async fn create_todo_db(pool: &PgPool, label: String) -> Result<Todo, sqlx::Error> {
-    let result = sqlx::query!(
-        r#"INSERT INTO todos(completed, label) VALUES($1, $2) RETURNING id"#,
-        false,
-        label
-    )
-    .fetch_one(pool)
-    .await?;
-
-    // TODO this could be rewritten more efficiently - RETURNING could return the whole todo
-    // But I should create a mapper or something similar
-    let todo = get_todo_db(pool, result.id).await?;
-    Ok(todo)
-}
-
-async fn create_todo_endpoint(mut req: Request<State>) -> tide::Result<String> {
-    let label = req.body_json::<CreateTodoDto>().await?.label;
-    let pool = req.state().pool.clone();
-
-    let todo = create_todo_db(&pool, label).await?;
-    Ok(serde_json::to_string_pretty(&todo)?)
-}
-
-async fn update_todo_db(pool: &PgPool, new_todo: Todo) -> Result<Todo, sqlx::Error> {
-    sqlx::query!(
-        r#"UPDATE todos SET completed = $1 WHERE id = $2"#,
-        new_todo.completed,
-        new_todo.id
-    )
-    .execute(pool)
-    .await?;
-
-    let todo = get_todo_db(pool, new_todo.id).await?;
-
-    Ok(todo)
-}
-
-async fn update_todo_endpoint(mut req: Request<State>) -> tide::Result<String> {
-    let id: i32 = req.param("id")?.parse()?;
-    let completed = req.body_json::<UpdateTodoDto>().await?.completed;
-    let pool = req.state().pool.clone();
-
-    // yeah, the names here are pretty confusing :p
-    let todo_db = get_todo_db(&pool, id).await?;
-    let new_todo = Todo {
-        completed,
-        ..todo_db
-    };
-    let new_todo_db = update_todo_db(&pool, new_todo).await?;
-
-    Ok(serde_json::to_string_pretty(&new_todo_db)?)
-}
-
-async fn delete_todo_db(pool: &PgPool, id: i32) -> Result<Todo, sqlx::Error> {
-    let todo = get_todo_db(pool, id).await?;
-    sqlx::query!(r#"DELETE FROM todos WHERE id = $1"#, id)
-        .execute(pool)
-        .await?;
-
-    Ok(todo)
-}
-
-async fn delete_todo_endpoint(req: Request<State>) -> tide::Result<String> {
-    let id: i32 = req.param("id")?.parse()?;
-    let pool = req.state().pool.clone();
-
-    let todo_db = delete_todo_db(&pool, id).await?;
-
-    Ok(serde_json::to_string_pretty(&todo_db)?)
-}
-
-#[derive(Clone)]
-struct State {
-    pool: PgPool,
-}
-
-impl State {
-    async fn new(database_url: String) -> Result<Self, sqlx::Error> {
-        Ok(Self {
-            pool: PgPool::connect(&database_url).await?,
-        })
-    }
-}
+mod todos;
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
