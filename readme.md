@@ -1,3 +1,7 @@
+## About
+
+A fullstack CRUD app written 100% in Rust.
+
 ## How to run
 
 1. Setup Rust

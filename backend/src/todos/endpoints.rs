@@ -18,9 +18,10 @@ async fn get_todo(req: Request<State>) -> tide::Result<String> {
     let id: i32 = req.param("id")?.parse()?;
     let pool = req.state().pool.clone();
 
-    let todos = get_todo_db(&pool, id).await?;
-
-    Ok(serde_json::to_string_pretty(&todos)?)
+    match get_todo_db(&pool, id).await {
+        Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
+        Err(_) => Err(tide::Error::from_str(404, "Todo not found")),
+    }
 }
 
 async fn create_todo(mut req: Request<State>) -> tide::Result<String> {
