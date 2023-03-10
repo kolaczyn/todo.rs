@@ -2,7 +2,9 @@ use std::env;
 
 use dotenv::dotenv;
 
-use crate::{state::State, todos::endpoints::todo_endpoints};
+use crate::{
+    categories::endpoints::categories_endpoints, state::State, todos::endpoints::todo_endpoints,
+};
 mod categories;
 mod state;
 mod todos;
@@ -17,7 +19,8 @@ async fn main() -> tide::Result<()> {
 
     tide::log::start();
 
-    app.at("/todos").nest(todo_endpoints(state));
+    app.at("/todos").nest(todo_endpoints(state.clone()));
+    app.at("/categories").nest(categories_endpoints(state));
 
     app.listen(format!("0.0.0.0:{}", port)).await?;
     Ok(())

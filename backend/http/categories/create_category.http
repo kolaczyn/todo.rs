@@ -1,0 +1,7 @@
+POST http://localhost:8080/categories
+Content-Type: application/json
+
+{
+  "color": "#0000ff",
+  "label": "React"
+}
