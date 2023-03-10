@@ -3,6 +3,7 @@ use std::env;
 use dotenv::dotenv;
 
 use crate::{state::State, todos::endpoints::todo_endpoints};
+mod categories;
 mod state;
 mod todos;
 
