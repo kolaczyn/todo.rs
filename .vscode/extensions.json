@@ -4,6 +4,7 @@
     "rust-lang.rust-analyzer",
     "usernamehw.errorlens",
     "ms-vscode-remote.remote-containers",
-    "mhutchie.git-graph"
+    "mhutchie.git-graph",
+    "cweijan.vscode-postgresql-client2"
   ]
 }
