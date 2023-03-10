@@ -1,18 +1,16 @@
 use anyhow::Error;
 use sqlx::PgPool;
 
+use crate::categories::db_dto::CategoryDb;
+
 use super::dto::CategoryDto;
 
 pub async fn get_categories_db(pool: &PgPool) -> Result<Vec<CategoryDto>, Error> {
-    let categories = sqlx::query!("SELECT id, label, color FROM categories")
+    let categories = sqlx::query_as!(CategoryDb, "SELECT id, label, color FROM categories")
         .fetch_all(pool)
         .await?
         .iter()
-        .map(|x| CategoryDto {
-            id: x.id,
-            label: x.label.to_owned(),
-            color: x.color.to_owned(),
-        })
+        .map(|x| x.to_dto())
         .collect();
 
     Ok(categories)
@@ -35,7 +33,8 @@ pub async fn create_category_db(
     label: String,
     color: String,
 ) -> Result<Vec<CategoryDto>, Error> {
-    let categories = sqlx::query!(
+    let categories = sqlx::query_as!(
+        CategoryDb,
         "INSERT INTO categories(label, color) VALUES($1, $2) RETURNING label, color, id",
         label,
         color
@@ -43,11 +42,7 @@ pub async fn create_category_db(
     .fetch_all(pool)
     .await?
     .iter()
-    .map(|x| CategoryDto {
-        id: x.id,
-        label: x.label.to_owned(),
-        color: x.color.to_owned(),
-    })
+    .map(|x| x.to_dto())
     .collect();
 
     Ok(categories)

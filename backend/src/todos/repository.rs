@@ -1,33 +1,27 @@
 use anyhow::Error;
 use sqlx::PgPool;
 
+use crate::todos::db_dto::TodoDb;
+
 use super::dto::TodoDto;
 
 pub async fn get_todos_db(pool: &PgPool) -> Result<Vec<TodoDto>, sqlx::Error> {
-    let todos_db = sqlx::query!(
+    let todos_db = sqlx::query_as!(
+        TodoDb,
         r#"SELECT completed, label, id, description
     FROM todos"#
     )
     .fetch_all(pool)
     .await?;
 
-    let todos = todos_db
-        .iter()
-        .map(|x| TodoDto {
-            id: x.id,
-            label: x.label.to_owned(),
-            completed: x.completed,
-            description: x.description.to_owned(),
-            // TODO fix
-            category: None,
-        })
-        .collect();
+    let todos = todos_db.iter().map(|x| x.to_dto()).collect();
 
     Ok(todos)
 }
 
 pub async fn get_todo_db(pool: &PgPool, id: i32) -> Result<TodoDto, sqlx::Error> {
-    let todo = sqlx::query!(
+    let todo = sqlx::query_as!(
+        TodoDb,
         "
         SELECT completed, label, id, description
         FROM todos
@@ -38,14 +32,7 @@ pub async fn get_todo_db(pool: &PgPool, id: i32) -> Result<TodoDto, sqlx::Error>
     .fetch_one(pool)
     .await?;
 
-    Ok(TodoDto {
-        id: todo.id,
-        label: todo.label,
-        completed: todo.completed,
-        description: todo.description,
-        // TODO fix
-        category: None,
-    })
+    Ok(todo.to_dto())
 }
 
 pub async fn create_todo_db(pool: &PgPool, label: String) -> Result<TodoDto, sqlx::Error> {
@@ -86,24 +73,18 @@ pub async fn assign_todo_to_category_db(
     todo_id: i32,
     category_id: i32,
 ) -> Result<TodoDto, Error> {
-    let todo_db = sqlx::query!(
+    let todo_db = sqlx::query_as!(
+        TodoDb,
         r#"UPDATE todos
         SET category_id = $1 WHERE id = $2
-        RETURNING id, completed, description, category_id, label"#,
+        RETURNING id, completed, description, label"#,
         category_id,
         todo_id
     )
     .fetch_one(pool)
     .await?;
 
-    Ok(TodoDto {
-        // TODO fix
-        category: None,
-        completed: todo_db.completed,
-        description: todo_db.description,
-        id: todo_db.id,
-        label: todo_db.label.to_owned(),
-    })
+    Ok(todo_db.to_dto())
 }
 
 pub async fn delete_todo_db(pool: &PgPool, id: i32) -> Result<TodoDto, sqlx::Error> {

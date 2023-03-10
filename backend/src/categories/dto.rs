@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 
-#[derive(Serialize, Deserialize)]
-
+#[derive(Serialize, Deserialize, FromRow)]
 pub struct CategoryDto {
     pub id: i32,
     pub label: String,
