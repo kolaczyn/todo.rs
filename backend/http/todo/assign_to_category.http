@@ -1,0 +1,6 @@
+PATCH http://localhost:8080/todos/assign-to-category/1
+Content-Type: application/json
+
+{
+  "category_id": 1
+}

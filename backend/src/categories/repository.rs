@@ -18,6 +18,18 @@ pub async fn get_categories_db(pool: &PgPool) -> Result<Vec<CategoryDto>, Error>
     Ok(categories)
 }
 
+pub async fn get_category_db(pool: &PgPool, id: i32) -> Result<CategoryDto, Error> {
+    let category = sqlx::query!("SELECT id, label, color FROM categories WHERE id = $1", id)
+        .fetch_one(pool)
+        .await?;
+
+    Ok(CategoryDto {
+        id: category.id,
+        label: category.label.to_owned(),
+        color: category.color.to_owned(),
+    })
+}
+
 pub async fn create_category_db(
     pool: &PgPool,
     label: String,

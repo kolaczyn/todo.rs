@@ -3,8 +3,11 @@ use tide::Request;
 use crate::state::State;
 
 use super::{
-    dto::{CreateTodoDto, TodoDto, UpdateTodoDto},
-    repository::{create_todo_db, delete_todo_db, get_todo_db, get_todos_db, update_todo_db},
+    dto::{CreateTodoDto, TodoDto, UpdateTodoCategoryDto, UpdateTodoDto},
+    repository::{
+        assign_todo_to_category_db, create_todo_db, delete_todo_db, get_todo_db, get_todos_db,
+        update_todo_db,
+    },
 };
 
 async fn get_todos(req: Request<State>) -> tide::Result<String> {
@@ -48,6 +51,16 @@ async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
     Ok(serde_json::to_string_pretty(&new_todo_db)?)
 }
 
+async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String> {
+    let id: i32 = req.param("id")?.parse()?;
+    let category_id = req.body_json::<UpdateTodoCategoryDto>().await?.category_id;
+    let pool = req.state().pool.clone();
+
+    let todo = assign_todo_to_category_db(&pool, id, category_id).await?;
+
+    Ok(serde_json::to_string_pretty(&todo)?)
+}
+
 async fn delete_todo(req: Request<State>) -> tide::Result<String> {
     let id: i32 = req.param("id")?.parse()?;
     let pool = req.state().pool.clone();
@@ -62,7 +75,10 @@ pub fn todo_endpoints(state: State) -> tide::Server<State> {
     api.at("/").get(get_todos);
     api.at("/:id").get(get_todo);
     api.at("/").post(create_todo);
+    // TODO "merge" the two patch endpoints
     api.at("/:id").patch(update_todo);
+    api.at("/assign-to-category/:id")
+        .patch(assign_todo_to_category);
     api.at("/:id").delete(delete_todo);
     api
 }
