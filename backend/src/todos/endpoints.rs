@@ -72,6 +72,7 @@ async fn delete_todo(req: Request<State>) -> tide::Result<String> {
 
 pub fn todo_endpoints(state: State) -> tide::Server<State> {
     let mut api = tide::with_state(state);
+
     api.at("/").get(get_todos);
     api.at("/:id").get(get_todo);
     api.at("/").post(create_todo);
@@ -80,5 +81,6 @@ pub fn todo_endpoints(state: State) -> tide::Server<State> {
     api.at("/assign-to-category/:id")
         .patch(assign_todo_to_category);
     api.at("/:id").delete(delete_todo);
+
     api
 }

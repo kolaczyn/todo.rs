@@ -5,6 +5,7 @@
     "usernamehw.errorlens",
     "ms-vscode-remote.remote-containers",
     "mhutchie.git-graph",
-    "cweijan.vscode-postgresql-client2"
+    "cweijan.vscode-postgresql-client2",
+    "tamasfe.even-better-toml"
   ]
 }

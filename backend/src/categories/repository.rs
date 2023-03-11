@@ -35,7 +35,9 @@ pub async fn create_category_db(
 ) -> Result<Vec<CategoryDto>, Error> {
     let categories = sqlx::query_as!(
         CategoryDb,
-        "INSERT INTO categories(label, color) VALUES($1, $2) RETURNING label, color, id",
+        "INSERT INTO categories(label, color)
+        VALUES($1, $2)
+        RETURNING label, color, id",
         label,
         color
     )
