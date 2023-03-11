@@ -23,7 +23,7 @@ async fn get_todo(req: Request<State>) -> tide::Result<String> {
 
     match get_todo_db(&pool, id).await {
         Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
-        Err(_) => Err(tide::Error::from_str(404, "Todo not found")),
+        Err(_) => Err(tide::Error::from_str(404, "Not found")),
     }
 }
 

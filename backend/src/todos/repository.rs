@@ -3,20 +3,45 @@ use sqlx::PgPool;
 
 use crate::todos::db_dto::TodoDb;
 
-use super::dto::TodoDto;
+use super::dto::{TodoCategoryDto, TodoDto};
 
 pub async fn get_todos_db(pool: &PgPool) -> Result<Vec<TodoDto>, sqlx::Error> {
-    let todos_db = sqlx::query_as!(
-        TodoDb,
+    let todos_db = sqlx::query!(
         "
-        SELECT completed, label, id, description
-        FROM todos
+        SELECT completed, t.label AS label, t.id AS id, description,
+        c.id AS category_id, c.label AS category_label, c.color AS category_color
+        FROM todos t
+        LEFT JOIN categories c
+        ON c.id = t.category_id
         "
     )
     .fetch_all(pool)
     .await?;
 
-    let todos = todos_db.iter().map(|x| x.to_dto()).collect();
+    let todos = todos_db
+        .iter()
+        .map(|x| {
+            let category = match (
+                x.category_id,
+                x.category_label.to_owned(),
+                x.category_color.to_owned(),
+            ) {
+                (Some(c_id), Some(c_label), Some(c_color)) => Some(TodoCategoryDto {
+                    id: c_id,
+                    label: c_label,
+                    color: c_color,
+                }),
+                _ => None,
+            };
+            return TodoDto {
+                id: x.id,
+                completed: x.completed,
+                label: x.label.to_owned(),
+                description: x.description.to_owned(),
+                category,
+            };
+        })
+        .collect();
 
     Ok(todos)
 }
