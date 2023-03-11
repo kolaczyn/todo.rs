@@ -1,6 +1,7 @@
 use std::env;
 
 use dotenv::dotenv;
+use tide::security::CorsMiddleware;
 
 use crate::{
     categories::endpoints::categories_endpoints, state::State, todos::endpoints::todo_endpoints,
@@ -16,6 +17,8 @@ async fn main() -> tide::Result<()> {
 
     let state = State::new().await?;
     let mut app = tide::new();
+
+    app.with(CorsMiddleware::new().allow_origin("*"));
 
     tide::log::start();
 

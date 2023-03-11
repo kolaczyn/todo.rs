@@ -33,13 +33,13 @@ pub async fn get_todos_db(pool: &PgPool) -> Result<Vec<TodoDto>, sqlx::Error> {
                 }),
                 _ => None,
             };
-            return TodoDto {
+            TodoDto {
                 id: x.id,
                 completed: x.completed,
                 label: x.label.to_owned(),
                 description: x.description.to_owned(),
                 category,
-            };
+            }
         })
         .collect();
 

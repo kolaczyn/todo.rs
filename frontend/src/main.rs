@@ -23,7 +23,7 @@ fn App() -> Html {
             move |_| {
                 let videos = videos.clone();
                 wasm_bindgen_futures::spawn_local(async move {
-                    let fetched_videos: Vec<Todo> = Request::get("http://localhost:8080/todos")
+                    let fetched_videos: Vec<Todo> = Request::get("http://localhost:8080/v1/todos")
                         .send()
                         .await
                         // TODO remove unwraps and make videos Result
