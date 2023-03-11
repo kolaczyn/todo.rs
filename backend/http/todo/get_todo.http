@@ -1,1 +1,1 @@
-GET http://localhost:8080/todos/1
+GET http://localhost:8080/v1/todos/1

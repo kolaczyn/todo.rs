@@ -1,5 +1,5 @@
 
-POST http://localhost:8080/todos
+POST http://localhost:8080/v1/todos
 Content-Type: application/json
 
 {

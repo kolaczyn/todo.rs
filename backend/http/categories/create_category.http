@@ -1,4 +1,4 @@
-POST http://localhost:8080/categories
+POST http://localhost:8080/v1/categories
 Content-Type: application/json
 
 {

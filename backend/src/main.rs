@@ -19,8 +19,8 @@ async fn main() -> tide::Result<()> {
 
     tide::log::start();
 
-    app.at("/todos").nest(todo_endpoints(state.clone()));
-    app.at("/categories").nest(categories_endpoints(state));
+    app.at("/v1/todos").nest(todo_endpoints(state.clone()));
+    app.at("/v1/categories").nest(categories_endpoints(state));
 
     app.listen(format!("0.0.0.0:{}", port)).await?;
     Ok(())
