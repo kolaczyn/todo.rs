@@ -1,4 +1,11 @@
-backend: FRC
+# backend run
+br:
 	cargo run --bin backend
 
-FRC:
+# backend build
+bb:
+	cargo build --bin backend
+
+# backend check
+bc:
+	cargo check --bin backend

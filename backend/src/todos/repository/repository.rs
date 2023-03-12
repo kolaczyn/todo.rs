@@ -1,9 +1,10 @@
 use anyhow::Error;
 use sqlx::PgPool;
 
-use crate::todos::db_dto::TodoDb;
-
-use super::dto::{TodoCategoryDto, TodoDto};
+use crate::todos::{
+    api::dto::{TodoCategoryDto, TodoDto},
+    repository::db_dto::TodoDb,
+};
 
 pub async fn get_todos_db(pool: &PgPool) -> Result<Vec<TodoDto>, sqlx::Error> {
     let todos_db = sqlx::query!(

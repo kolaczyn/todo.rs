@@ -1,4 +1,2 @@
-mod db_dto;
-mod dto;
-pub mod endpoints;
-mod repository;
+pub mod api;
+pub mod repository;

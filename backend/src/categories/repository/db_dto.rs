@@ -1,4 +1,4 @@
-use super::dto::CategoryDto;
+use crate::categories::api::dto::CategoryDto;
 
 pub struct CategoryDb {
     pub id: i32,

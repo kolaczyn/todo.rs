@@ -1,11 +1,11 @@
 use tide::Request;
 
-use crate::state::State;
-
-use super::{
-    dto::CreateCategoryDto,
-    repository::{create_category_db, get_categories_db, get_category_db},
+use crate::{
+    categories::repository::repository::{create_category_db, get_categories_db, get_category_db},
+    state::State,
 };
+
+use super::dto::CreateCategoryDto;
 
 async fn get_categories(req: Request<State>) -> tide::Result<String> {
     let pool = &req.state().pool;

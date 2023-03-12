@@ -1,14 +1,14 @@
 use tide::Request;
 
-use crate::state::State;
-
-use super::{
-    dto::{CreateTodoDto, TodoDto, UpdateTodoCategoryDto, UpdateTodoDto},
-    repository::{
+use crate::{
+    state::State,
+    todos::repository::repository::{
         assign_todo_to_category_db, create_todo_db, delete_todo_db, get_todo_db, get_todos_db,
         update_todo_db,
     },
 };
+
+use super::dto::{CreateTodoDto, TodoDto, UpdateTodoCategoryDto, UpdateTodoDto};
 
 async fn get_todos(req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();

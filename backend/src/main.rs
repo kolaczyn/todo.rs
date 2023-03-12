@@ -4,8 +4,10 @@ use dotenv::dotenv;
 use tide::security::CorsMiddleware;
 
 use crate::{
-    categories::endpoints::categories_endpoints, state::State, todos::endpoints::todo_endpoints,
+    categories::api::endpoints::categories_endpoints, state::State,
+    todos::api::endpoints::todo_endpoints,
 };
+
 mod categories;
 mod state;
 mod todos;
