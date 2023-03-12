@@ -4,10 +4,11 @@ use dotenv::dotenv;
 use tide::security::CorsMiddleware;
 
 use crate::{
-    categories::api::endpoints::categories_endpoints, state::State,
-    todos::api::endpoints::todo_endpoints,
+    auth::api::endpoints::auth_endpoints, categories::api::endpoints::categories_endpoints,
+    state::State, todos::api::endpoints::todo_endpoints,
 };
 
+mod auth;
 mod categories;
 mod state;
 mod todos;
@@ -24,6 +25,7 @@ async fn main() -> tide::Result<()> {
 
     tide::log::start();
 
+    app.at("v1/auth").nest(auth_endpoints(state.clone()));
     app.at("/v1/todos").nest(todo_endpoints(state.clone()));
     app.at("/v1/categories").nest(categories_endpoints(state));
 
