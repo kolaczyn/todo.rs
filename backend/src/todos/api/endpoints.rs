@@ -40,15 +40,10 @@ async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
     let completed = req.body_json::<UpdateTodoDto>().await?.completed;
     let pool = req.state().pool.clone();
 
-    // yeah, the names here are pretty confusing :p
-    let todo_db = get_todo_db(&pool, id).await?;
-    let new_todo = TodoDto {
-        completed,
-        ..todo_db
-    };
-    let new_todo_db = update_todo_db(&pool, new_todo).await?;
+    // FIXME I return Db in endpoins, instead of Dto
+    let todo = update_todo_db(&pool, id, completed).await?;
 
-    Ok(serde_json::to_string_pretty(&new_todo_db)?)
+    Ok(serde_json::to_string_pretty(&todo)?)
 }
 
 async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String> {
