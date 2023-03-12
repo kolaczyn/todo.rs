@@ -2,10 +2,11 @@ use tide::Request;
 
 use crate::{
     auth::repository::repository::{login_db, register_db},
+    common::jwt::{create_jwt, read_jwt},
     state::State,
 };
 
-use super::dto::{LoginFormDto, RegisterFormDto};
+use super::dto::{LoginFormDto, MeFormDto, RegisterFormDto, UserDto};
 
 async fn register(mut req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
@@ -15,9 +16,15 @@ async fn register(mut req: Request<State>) -> tide::Result<String> {
     let email = body.email;
     let password = body.password;
 
-    let user = register_db(&pool, email, password).await?;
+    let user_db = register_db(&pool, email, password).await?;
+    let jwt = create_jwt(user_db.id, &user_db.email)?;
+    let user_dto = UserDto {
+        email: user_db.email.clone(),
+        id: user_db.id,
+        jwt,
+    };
 
-    Ok(serde_json::to_string_pretty(&user)?)
+    Ok(serde_json::to_string_pretty(&user_dto)?)
 }
 
 async fn login(mut req: Request<State>) -> tide::Result<String> {
@@ -28,9 +35,24 @@ async fn login(mut req: Request<State>) -> tide::Result<String> {
     let username = body.email;
     let password = body.password;
 
-    let user = login_db(&pool, username, password).await?;
+    let user_db = login_db(&pool, username, password).await?;
+    let jwt = create_jwt(user_db.id, &user_db.email)?;
+    let user_dto = UserDto {
+        email: user_db.email.clone(),
+        id: user_db.id,
+        jwt,
+    };
 
-    Ok(serde_json::to_string_pretty(&user)?)
+    Ok(serde_json::to_string_pretty(&user_dto)?)
+}
+
+async fn me(mut req: Request<State>) -> tide::Result<String> {
+    let body: MeFormDto = req.body_json().await?;
+    let jwt = body.jwt;
+
+    let claims = read_jwt(&jwt)?;
+
+    Ok(serde_json::to_string_pretty(&claims)?)
 }
 
 pub fn auth_endpoints(state: State) -> tide::Server<State> {
@@ -38,6 +60,7 @@ pub fn auth_endpoints(state: State) -> tide::Server<State> {
 
     api.at("/login").post(login);
     api.at("/register").post(register);
+    api.at("/me").post(me);
 
     api
 }

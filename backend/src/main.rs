@@ -10,6 +10,7 @@ use crate::{
 
 mod auth;
 mod categories;
+mod common;
 mod state;
 mod todos;
 
