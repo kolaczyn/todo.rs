@@ -1,23 +1,34 @@
 use tide::Request;
 
-use crate::{auth::repository::repository::register_db, state::State};
+use crate::{
+    auth::repository::repository::{login_db, register_db},
+    state::State,
+};
 
-async fn login(req: Request<State>) -> tide::Result<String> {
+use super::dto::{LoginFormDto, RegisterFormDto};
+
+async fn register(mut req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
-    let username = String::from("John");
-    let password = String::from("123456");
 
-    let user = register_db(&pool, username, password).await?;
+    let body: RegisterFormDto = req.body_json().await?;
+    // TODO add validation (is email and password length)
+    let email = body.email;
+    let password = body.password;
+
+    let user = register_db(&pool, email, password).await?;
 
     Ok(serde_json::to_string_pretty(&user)?)
 }
 
-async fn register(req: Request<State>) -> tide::Result<String> {
+async fn login(mut req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
-    let username = String::from("John");
-    let password = String::from("123456");
 
-    let user = register_db(&pool, username, password).await?;
+    let body: LoginFormDto = req.body_json().await?;
+    // TODO add validation (is email and password length)
+    let username = body.email;
+    let password = body.password;
+
+    let user = login_db(&pool, username, password).await?;
 
     Ok(serde_json::to_string_pretty(&user)?)
 }
