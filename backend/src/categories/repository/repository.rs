@@ -1,9 +1,9 @@
 use anyhow::Error;
 use sqlx::PgPool;
 
-use crate::categories::{api::dto::CategoryDto, repository::db_dto::CategoryDb};
+use crate::categories::repository::db_dto::CategoryDb;
 
-pub async fn get_categories_db(pool: &PgPool) -> Result<Vec<CategoryDto>, Error> {
+pub async fn get_categories_db(pool: &PgPool) -> Result<Vec<CategoryDb>, Error> {
     let categories = sqlx::query_as!(
         CategoryDb,
         "
@@ -12,15 +12,12 @@ pub async fn get_categories_db(pool: &PgPool) -> Result<Vec<CategoryDto>, Error>
         "
     )
     .fetch_all(pool)
-    .await?
-    .iter()
-    .map(|x| x.to_dto())
-    .collect();
+    .await?;
 
     Ok(categories)
 }
 
-pub async fn get_category_db(pool: &PgPool, id: i32) -> Result<CategoryDto, Error> {
+pub async fn get_category_db(pool: &PgPool, id: i32) -> Result<CategoryDb, Error> {
     let category = sqlx::query_as!(
         CategoryDb,
         "
@@ -32,7 +29,7 @@ pub async fn get_category_db(pool: &PgPool, id: i32) -> Result<CategoryDto, Erro
     .fetch_one(pool)
     .await?;
 
-    Ok(CategoryDto {
+    Ok(CategoryDb {
         id: category.id,
         label: category.label.to_owned(),
         color: category.color.to_owned(),
@@ -43,7 +40,7 @@ pub async fn create_category_db(
     pool: &PgPool,
     label: String,
     color: String,
-) -> Result<Vec<CategoryDto>, Error> {
+) -> Result<Vec<CategoryDb>, Error> {
     let categories = sqlx::query_as!(
         CategoryDb,
         "
@@ -55,10 +52,7 @@ pub async fn create_category_db(
         color
     )
     .fetch_all(pool)
-    .await?
-    .iter()
-    .map(|x| x.to_dto())
-    .collect();
+    .await?;
 
     Ok(categories)
 }
