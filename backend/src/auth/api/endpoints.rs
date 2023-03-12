@@ -1,49 +1,27 @@
 use tide::Request;
 
 use crate::{
-    auth::repository::repository::{login_db, register_db},
-    common::jwt::{create_jwt, read_jwt},
+    auth::application::application::{login_app, register_app},
+    common::jwt::read_jwt,
     state::State,
 };
 
-use super::dto::{LoginFormDto, MeFormDto, RegisterFormDto, UserDto};
+use super::dto::{LoginFormDto, MeFormDto, RegisterFormDto};
 
 async fn register(mut req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
-
     let body: RegisterFormDto = req.body_json().await?;
-    // TODO add validation (is email and password length)
-    let email = body.email;
-    let password = body.password;
 
-    let user_db = register_db(&pool, email, password).await?;
-    let jwt = create_jwt(user_db.id, &user_db.email)?;
-    let user_dto = UserDto {
-        email: user_db.email.clone(),
-        id: user_db.id,
-        jwt,
-    };
-
-    Ok(serde_json::to_string_pretty(&user_dto)?)
+    let user = register_app(&pool, &body.email, &body.password).await?;
+    Ok(serde_json::to_string_pretty(&user)?)
 }
 
 async fn login(mut req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
-
     let body: LoginFormDto = req.body_json().await?;
-    // TODO add validation (is email and password length)
-    let username = body.email;
-    let password = body.password;
 
-    let user_db = login_db(&pool, username, password).await?;
-    let jwt = create_jwt(user_db.id, &user_db.email)?;
-    let user_dto = UserDto {
-        email: user_db.email.clone(),
-        id: user_db.id,
-        jwt,
-    };
-
-    Ok(serde_json::to_string_pretty(&user_dto)?)
+    let user = login_app(&pool, &body.email, &body.password).await?;
+    Ok(serde_json::to_string_pretty(&user)?)
 }
 
 async fn me(mut req: Request<State>) -> tide::Result<String> {

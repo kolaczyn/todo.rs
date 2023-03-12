@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct RegisterFormDto {
@@ -14,12 +14,5 @@ pub struct LoginFormDto {
 
 #[derive(Deserialize)]
 pub struct MeFormDto {
-    pub jwt: String,
-}
-
-#[derive(Serialize)]
-pub struct UserDto {
-    pub id: i32,
-    pub email: String,
     pub jwt: String,
 }

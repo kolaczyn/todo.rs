@@ -19,7 +19,7 @@ pub enum ErrorCreateJwt {
     JwtTokenCreationError,
 }
 
-pub fn create_jwt(id: i32, email: &String) -> anyhow::Result<String> {
+pub fn create_jwt(id: i32, email: &String) -> Result<String, ErrorCreateJwt> {
     let expiration = Utc::now()
         .checked_add_signed(chrono::Duration::seconds(60))
         .expect("valid timestamp")
@@ -27,7 +27,7 @@ pub fn create_jwt(id: i32, email: &String) -> anyhow::Result<String> {
 
     let claims = Claims {
         email: String::from(email),
-        id: id,
+        id,
         exp: expiration as usize,
     };
     let header = Header::new(Algorithm::HS512);
@@ -36,12 +36,13 @@ pub fn create_jwt(id: i32, email: &String) -> anyhow::Result<String> {
     Ok(jwt)
 }
 
-pub fn read_jwt(jwt: &String) -> anyhow::Result<Claims> {
+pub fn read_jwt(jwt: &String) -> Result<Claims, ErrorCreateJwt> {
     let claims = decode::<Claims>(
         &jwt,
         &DecodingKey::from_secret(JWT_SECRET),
         &Validation::new(Algorithm::HS512),
-    )?
+    )
+    .map_err(|_| ErrorCreateJwt::JwtTokenCreationError)?
     .claims;
     Ok(claims)
 }

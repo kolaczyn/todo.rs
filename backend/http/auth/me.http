@@ -2,5 +2,5 @@ POST http://localhost:8080/v1/auth/me
 Content-Type: application/json
 
 {
-  "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJlbWFpbCI6ImpvaG5AZ29vZ2xlLmNvbSIsImlkIjoxLCJleHAiOjE2Nzg2NTIwOTV9.XzomZ45oqQbwS7NIYHYl1l46UM0gjVc1zL2U1-fa02mFaxhloS8IX1sNa9XuhgqKQygYpeknVSFZEttZeKINBg"
+  "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJlbWFpbCI6ImpvaG5AZ29vZ2xlLmNvbSIsImlkIjoxLCJleHAiOjE2Nzg2NTg5Mjh9.nNPFORS6waIKdqKgbrvDpP3QmV2xBrNj-zHBkl9E94vVFmcrkezkkOfYHXeRLtBKqdMWJFnmbrG6H4V6GQJ3vw"
 }

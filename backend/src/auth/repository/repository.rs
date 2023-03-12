@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Error, Result};
-use bcrypt::{bcrypt, hash, verify, DEFAULT_COST};
+use bcrypt::{hash, verify, DEFAULT_COST};
 use sqlx::PgPool;
 
 use super::models::UserDb;
@@ -7,8 +7,8 @@ use super::models::UserDb;
 pub async fn register_db(
     pool: &PgPool,
     // TODO add somewhere validation checking if this a valid email
-    email: String,
-    password: String,
+    email: &String,
+    password: &String,
 ) -> Result<UserDb, Error> {
     // TOOD this should be in another layer, methinks
     let hashed_password = hash(password, DEFAULT_COST)?;
@@ -28,7 +28,7 @@ pub async fn register_db(
     Ok(user)
 }
 
-pub async fn login_db(pool: &PgPool, email: String, password: String) -> Result<UserDb> {
+pub async fn login_db(pool: &PgPool, email: &String, password: &String) -> Result<UserDb> {
     let user = sqlx::query!(
         "
         SELECT email, password_hash, id

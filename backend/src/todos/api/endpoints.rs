@@ -12,6 +12,7 @@ use super::dto::{CreateTodoDto, TodoDto, UpdateTodoCategoryDto, UpdateTodoDto};
 
 async fn get_todos(req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
+    // oops, I'm not returning the Dto, so the shape of the data is wrong
     let todos = get_todos_db(&pool).await?;
 
     Ok(serde_json::to_string_pretty(&todos)?)
