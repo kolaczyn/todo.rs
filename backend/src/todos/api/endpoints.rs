@@ -8,7 +8,7 @@ use crate::{
     },
 };
 
-use super::dto::{CreateTodoDto, TodoDto, UpdateTodoCategoryDto, UpdateTodoDto};
+use super::dto::{CreateTodoDto, UpdateTodoCategoryDto, UpdateTodoDto};
 
 async fn get_todos(req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
@@ -19,8 +19,8 @@ async fn get_todos(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn get_todo(req: Request<State>) -> tide::Result<String> {
-    let id: i32 = req.param("id")?.parse()?;
     let pool = req.state().pool.clone();
+    let id: i32 = req.param("id")?.parse()?;
 
     match get_todo_db(&pool, id).await {
         Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
@@ -29,17 +29,17 @@ async fn get_todo(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn create_todo(mut req: Request<State>) -> tide::Result<String> {
-    let label = req.body_json::<CreateTodoDto>().await?.label;
     let pool = req.state().pool.clone();
+    let label = req.body_json::<CreateTodoDto>().await?.label;
 
-    let todo = create_todo_db(&pool, label).await?;
+    let todo = create_todo_db(&pool, &label).await?;
     Ok(serde_json::to_string_pretty(&todo)?)
 }
 
 async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
+    let pool = req.state().pool.clone();
     let id: i32 = req.param("id")?.parse()?;
     let completed = req.body_json::<UpdateTodoDto>().await?.completed;
-    let pool = req.state().pool.clone();
 
     // FIXME I return Db in endpoins, instead of Dto
     let todo = update_todo_db(&pool, id, completed).await?;
@@ -48,9 +48,9 @@ async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
 }
 
 async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String> {
+    let pool = req.state().pool.clone();
     let id: i32 = req.param("id")?.parse()?;
     let category_id = req.body_json::<UpdateTodoCategoryDto>().await?.category_id;
-    let pool = req.state().pool.clone();
 
     let todo = assign_todo_to_category_db(&pool, id, category_id).await?;
 
@@ -58,8 +58,8 @@ async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String
 }
 
 async fn delete_todo(req: Request<State>) -> tide::Result<String> {
-    let id: i32 = req.param("id")?.parse()?;
     let pool = req.state().pool.clone();
+    let id: i32 = req.param("id")?.parse()?;
 
     let todo_db = delete_todo_db(&pool, id).await?;
 

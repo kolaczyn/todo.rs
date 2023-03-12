@@ -38,8 +38,8 @@ pub async fn get_category_db(pool: &PgPool, id: i32) -> Result<CategoryDb, Error
 
 pub async fn create_category_db(
     pool: &PgPool,
-    label: String,
-    color: String,
+    label: &String,
+    color: &String,
 ) -> Result<Vec<CategoryDb>, Error> {
     let categories = sqlx::query_as!(
         CategoryDb,

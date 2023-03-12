@@ -39,7 +39,7 @@ pub async fn get_todo_db(pool: &PgPool, id: i32) -> Result<TodoWithoutCategoryDb
     Ok(todo)
 }
 
-pub async fn create_todo_db(pool: &PgPool, label: String) -> Result<TodoDto, sqlx::Error> {
+pub async fn create_todo_db(pool: &PgPool, label: &String) -> Result<TodoDto, sqlx::Error> {
     let todo = sqlx::query_as!(
         TodoWithoutCategoryDb,
         "
