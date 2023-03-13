@@ -6,6 +6,10 @@
     "ms-vscode-remote.remote-containers",
     "mhutchie.git-graph",
     "cweijan.vscode-postgresql-client2",
-    "tamasfe.even-better-toml"
+    "tamasfe.even-better-toml",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "svelte.svelte-vscode",
+    "eamodio.gitlens"
   ]
 }
