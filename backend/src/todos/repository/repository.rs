@@ -1,4 +1,3 @@
-use anyhow::Error;
 use sqlx::PgPool;
 
 use crate::todos::repository::models::{TodoWithCategoryDb, TodoWithoutCategoryDb};
@@ -82,7 +81,7 @@ pub async fn assign_todo_to_category_db(
     pool: &PgPool,
     todo_id: i32,
     category_id: i32,
-) -> Result<TodoWithoutCategoryDb, Error> {
+) -> Result<TodoWithoutCategoryDb, sqlx::Error> {
     let todo = sqlx::query_as!(
         TodoWithoutCategoryDb,
         "

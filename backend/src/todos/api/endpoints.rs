@@ -2,29 +2,40 @@ use tide::Request;
 
 use crate::{
     state::State,
-    todos::repository::repository::{
-        assign_todo_to_category_db, create_todo_db, delete_todo_db, get_todo_db, get_todos_db,
-        update_todo_db,
+    todos::application::application::{
+        assign_todo_to_category_app, create_todo_app, delete_todo_app, get_todo_app, get_todos_app,
+        update_todo_app, ErrorTodos,
     },
 };
 
 use super::form::{CreateTodoForm, UpdateTodoCategoryForm, UpdateTodoForm};
 
-async fn get_todos(req: Request<State>) -> tide::Result<String> {
-    let pool = req.state().pool.clone();
-    // oops, I'm not returning the Dto, so the shape of the data is wrong
-    let todos = get_todos_db(&pool).await?;
+fn app_err_to_response(err: ErrorTodos) -> tide::Error {
+    match err {
+        ErrorTodos::NotFound => tide::Error::from_str(404, "Not found"),
+        ErrorTodos::DbError => tide::Error::from_str(500, "Server eror"),
+    }
+}
 
-    Ok(serde_json::to_string_pretty(&todos)?)
+async fn get_todos(req: Request<State>) -> tide::Result<String> {
+    // TODO borrow here and everywhere else
+    let pool = req.state().pool.clone();
+
+    let todos = get_todos_app(&pool).await;
+    match todos.map_err(app_err_to_response) {
+        Ok(todos) => Ok(serde_json::to_string_pretty(&todos)?),
+        Err(err) => Err(err),
+    }
 }
 
 async fn get_todo(req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
     let id: i32 = req.param("id")?.parse()?;
 
-    match get_todo_db(&pool, id).await {
+    let todo = get_todo_app(&pool, id).await;
+    match todo.map_err(app_err_to_response) {
         Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
-        Err(_) => Err(tide::Error::from_str(404, "Not found")),
+        Err(err) => Err(err),
     }
 }
 
@@ -32,8 +43,11 @@ async fn create_todo(mut req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
     let label = req.body_json::<CreateTodoForm>().await?.label;
 
-    let todo = create_todo_db(&pool, &label).await?;
-    Ok(serde_json::to_string_pretty(&todo)?)
+    let todo = create_todo_app(&pool, &label).await;
+    match todo.map_err(app_err_to_response) {
+        Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
+        Err(err) => Err(err),
+    }
 }
 
 async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
@@ -41,10 +55,11 @@ async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
     let id: i32 = req.param("id")?.parse()?;
     let completed = req.body_json::<UpdateTodoForm>().await?.completed;
 
-    // FIXME I return Db in endpoins, instead of Dto
-    let todo = update_todo_db(&pool, id, completed).await?;
-
-    Ok(serde_json::to_string_pretty(&todo)?)
+    let todo = update_todo_app(&pool, id, completed).await;
+    match todo.map_err(app_err_to_response) {
+        Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
+        Err(err) => Err(err),
+    }
 }
 
 async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String> {
@@ -52,18 +67,22 @@ async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String
     let id: i32 = req.param("id")?.parse()?;
     let category_id = req.body_json::<UpdateTodoCategoryForm>().await?.category_id;
 
-    let todo = assign_todo_to_category_db(&pool, id, category_id).await?;
-
-    Ok(serde_json::to_string_pretty(&todo)?)
+    let todo = assign_todo_to_category_app(&pool, id, category_id).await;
+    match todo.map_err(app_err_to_response) {
+        Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
+        Err(err) => Err(err),
+    }
 }
 
 async fn delete_todo(req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
     let id: i32 = req.param("id")?.parse()?;
 
-    let todo_db = delete_todo_db(&pool, id).await?;
-
-    Ok(serde_json::to_string_pretty(&todo_db)?)
+    let todo = delete_todo_app(&pool, id).await;
+    match todo.map_err(app_err_to_response) {
+        Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
+        Err(err) => Err(err),
+    }
 }
 
 pub fn todo_endpoints(state: State) -> tide::Server<State> {
