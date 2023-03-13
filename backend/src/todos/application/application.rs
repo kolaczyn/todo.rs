@@ -33,36 +33,38 @@ pub async fn get_todos_app(pool: &PgPool) -> Result<Vec<TodoDto>, ErrorTodos> {
     Ok(todos_dto)
 }
 
-pub async fn get_todo_app(pool: &PgPool, id: i32) -> Result<TodoDb, ErrorTodos> {
-    let todo = get_todo_db(pool, id).await.map_err(db_err_to_app_err);
-    todo
+pub async fn get_todo_app(pool: &PgPool, id: i32) -> Result<TodoDto, ErrorTodos> {
+    let todo = get_todo_db(pool, id).await.map_err(db_err_to_app_err)?;
+    Ok(todo.to_dto())
 }
 
-pub async fn create_todo_app(pool: &PgPool, label: &String) -> Result<TodoDb, ErrorTodos> {
-    let todo = create_todo_db(pool, label).await.map_err(db_err_to_app_err);
-    todo
+pub async fn create_todo_app(pool: &PgPool, label: &String) -> Result<TodoDto, ErrorTodos> {
+    let todo = create_todo_db(pool, label)
+        .await
+        .map_err(db_err_to_app_err)?;
+    Ok(todo.to_dto())
 }
 
 pub async fn update_todo_app(
     pool: &PgPool,
     id: i32,
     completed: bool,
-) -> Result<TodoDb, ErrorTodos> {
+) -> Result<TodoDto, ErrorTodos> {
     let todo = update_todo_db(pool, id, completed)
         .await
-        .map_err(db_err_to_app_err);
-    todo
+        .map_err(db_err_to_app_err)?;
+    Ok(todo.to_dto())
 }
 
 pub async fn assign_todo_to_category_app(
     pool: &PgPool,
     todo_id: i32,
     category_id: i32,
-) -> Result<TodoDb, ErrorTodos> {
+) -> Result<TodoDto, ErrorTodos> {
     let todo = assign_todo_to_category_db(pool, todo_id, category_id)
         .await
-        .map_err(db_err_to_app_err);
-    todo
+        .map_err(db_err_to_app_err)?;
+    Ok(todo.to_dto())
 }
 
 pub async fn delete_todo_app(pool: &PgPool, id: i32) -> Result<TodoDb, ErrorTodos> {
