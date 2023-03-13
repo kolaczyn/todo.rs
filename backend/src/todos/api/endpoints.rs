@@ -18,10 +18,9 @@ fn app_err_to_response(err: ErrorTodos) -> tide::Error {
 }
 
 async fn get_todos(req: Request<State>) -> tide::Result<String> {
-    // TODO borrow here and everywhere else
-    let pool = req.state().pool.clone();
+    let pool = &req.state().pool;
 
-    let todos = get_todos_app(&pool).await;
+    let todos = get_todos_app(pool).await;
     match todos.map_err(app_err_to_response) {
         Ok(todos) => Ok(serde_json::to_string_pretty(&todos)?),
         Err(err) => Err(err),
@@ -29,10 +28,10 @@ async fn get_todos(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn get_todo(req: Request<State>) -> tide::Result<String> {
-    let pool = req.state().pool.clone();
+    let pool = &req.state().pool;
     let id: i32 = req.param("id")?.parse()?;
 
-    let todo = get_todo_app(&pool, id).await;
+    let todo = get_todo_app(pool, id).await;
     match todo.map_err(app_err_to_response) {
         Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
         Err(err) => Err(err),
@@ -40,8 +39,8 @@ async fn get_todo(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn create_todo(mut req: Request<State>) -> tide::Result<String> {
-    let pool = req.state().pool.clone();
     let label = req.body_json::<CreateTodoForm>().await?.label;
+    let pool = &req.state().pool;
 
     let todo = create_todo_app(&pool, &label).await;
     match todo.map_err(app_err_to_response) {
@@ -51,9 +50,9 @@ async fn create_todo(mut req: Request<State>) -> tide::Result<String> {
 }
 
 async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
-    let pool = req.state().pool.clone();
-    let id: i32 = req.param("id")?.parse()?;
     let completed = req.body_json::<UpdateTodoForm>().await?.completed;
+    let pool = &req.state().pool;
+    let id: i32 = req.param("id")?.parse()?;
 
     let todo = update_todo_app(&pool, id, completed).await;
     match todo.map_err(app_err_to_response) {
@@ -63,11 +62,11 @@ async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
 }
 
 async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String> {
-    let pool = req.state().pool.clone();
-    let id: i32 = req.param("id")?.parse()?;
     let category_id = req.body_json::<UpdateTodoCategoryForm>().await?.category_id;
+    let pool = &req.state().pool;
+    let id: i32 = req.param("id")?.parse()?;
 
-    let todo = assign_todo_to_category_app(&pool, id, category_id).await;
+    let todo = assign_todo_to_category_app(pool, id, category_id).await;
     match todo.map_err(app_err_to_response) {
         Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
         Err(err) => Err(err),
@@ -75,10 +74,10 @@ async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String
 }
 
 async fn delete_todo(req: Request<State>) -> tide::Result<String> {
-    let pool = req.state().pool.clone();
+    let pool = &req.state().pool;
     let id: i32 = req.param("id")?.parse()?;
 
-    let todo = delete_todo_app(&pool, id).await;
+    let todo = delete_todo_app(pool, id).await;
     match todo.map_err(app_err_to_response) {
         Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
         Err(err) => Err(err),

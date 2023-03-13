@@ -9,18 +9,18 @@ use crate::{
 use super::form::{LoginFormDto, MeFormDto, RegisterFormDto};
 
 async fn register(mut req: Request<State>) -> tide::Result<String> {
-    let pool = req.state().pool.clone();
     let body: RegisterFormDto = req.body_json().await?;
+    let pool = &req.state().pool;
 
     let user = register_app(&pool, &body.email, &body.password).await?;
     Ok(serde_json::to_string_pretty(&user)?)
 }
 
 async fn login(mut req: Request<State>) -> tide::Result<String> {
-    let pool = req.state().pool.clone();
     let body: LoginFormDto = req.body_json().await?;
+    let pool = &req.state().pool;
 
-    let user = login_app(&pool, &body.email, &body.password).await?;
+    let user = login_app(pool, &body.email, &body.password).await?;
     Ok(serde_json::to_string_pretty(&user)?)
 }
 
