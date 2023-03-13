@@ -8,7 +8,7 @@ use crate::{
     },
 };
 
-use super::form::{CreateTodoDto, UpdateTodoCategoryDto, UpdateTodoDto};
+use super::form::{CreateTodoForm, UpdateTodoCategoryForm, UpdateTodoForm};
 
 async fn get_todos(req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
@@ -30,7 +30,7 @@ async fn get_todo(req: Request<State>) -> tide::Result<String> {
 
 async fn create_todo(mut req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
-    let label = req.body_json::<CreateTodoDto>().await?.label;
+    let label = req.body_json::<CreateTodoForm>().await?.label;
 
     let todo = create_todo_db(&pool, &label).await?;
     Ok(serde_json::to_string_pretty(&todo)?)
@@ -39,7 +39,7 @@ async fn create_todo(mut req: Request<State>) -> tide::Result<String> {
 async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
     let id: i32 = req.param("id")?.parse()?;
-    let completed = req.body_json::<UpdateTodoDto>().await?.completed;
+    let completed = req.body_json::<UpdateTodoForm>().await?.completed;
 
     // FIXME I return Db in endpoins, instead of Dto
     let todo = update_todo_db(&pool, id, completed).await?;
@@ -50,7 +50,7 @@ async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
 async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
     let id: i32 = req.param("id")?.parse()?;
-    let category_id = req.body_json::<UpdateTodoCategoryDto>().await?.category_id;
+    let category_id = req.body_json::<UpdateTodoCategoryForm>().await?.category_id;
 
     let todo = assign_todo_to_category_db(&pool, id, category_id).await?;
 

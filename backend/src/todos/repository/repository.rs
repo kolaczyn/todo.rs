@@ -1,10 +1,7 @@
 use anyhow::Error;
 use sqlx::PgPool;
 
-use crate::todos::{
-    api::form::TodoDto,
-    repository::models::{TodoWithCategoryDb, TodoWithoutCategoryDb},
-};
+use crate::todos::repository::models::{TodoWithCategoryDb, TodoWithoutCategoryDb};
 
 pub async fn get_todos_db(pool: &PgPool) -> Result<Vec<TodoWithCategoryDb>, sqlx::Error> {
     let todos = sqlx::query_as!(
@@ -39,7 +36,10 @@ pub async fn get_todo_db(pool: &PgPool, id: i32) -> Result<TodoWithoutCategoryDb
     Ok(todo)
 }
 
-pub async fn create_todo_db(pool: &PgPool, label: &String) -> Result<TodoDto, sqlx::Error> {
+pub async fn create_todo_db(
+    pool: &PgPool,
+    label: &String,
+) -> Result<TodoWithoutCategoryDb, sqlx::Error> {
     let todo = sqlx::query_as!(
         TodoWithoutCategoryDb,
         "
@@ -53,7 +53,7 @@ pub async fn create_todo_db(pool: &PgPool, label: &String) -> Result<TodoDto, sq
     .fetch_one(pool)
     .await?;
 
-    Ok(todo.to_dto())
+    Ok(todo)
 }
 
 pub async fn update_todo_db(

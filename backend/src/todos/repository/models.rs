@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::todos::api::form::TodoDto;
-
 #[derive(Serialize, Deserialize)]
 pub struct TodoWithCategoryDb {
     pub id: i32,
@@ -21,17 +19,4 @@ pub struct TodoWithoutCategoryDb {
     pub label: String,
     pub description: Option<String>,
     pub completed: bool,
-}
-
-impl TodoWithoutCategoryDb {
-    pub fn to_dto(&self) -> TodoDto {
-        TodoDto {
-            id: self.id,
-            label: self.label.to_owned(),
-            description: self.description.to_owned(),
-            completed: self.completed,
-            // TODO fix
-            category: None,
-        }
-    }
 }
