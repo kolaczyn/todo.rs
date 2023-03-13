@@ -2,12 +2,14 @@ use sqlx::PgPool;
 use thiserror::Error;
 
 use crate::todos::repository::{
-    models::{TodoWithCategoryDb, TodoWithoutCategoryDb},
+    models::TodoWithoutCategoryDb,
     repository::{
         assign_todo_to_category_db, create_todo_db, delete_todo_db, get_todo_db, get_todos_db,
         update_todo_db,
     },
 };
+
+use super::dto::TodoDto;
 
 #[derive(Error, Debug)]
 pub enum ErrorTodos {
@@ -25,9 +27,10 @@ fn db_err_to_app_err(err: sqlx::Error) -> ErrorTodos {
 }
 
 // TODO return TodoWithCategoryDto instead of TodoWithCategoryDb
-pub async fn get_todos_app(pool: &PgPool) -> Result<Vec<TodoWithCategoryDb>, ErrorTodos> {
-    let todos = get_todos_db(&pool).await.map_err(db_err_to_app_err);
-    todos
+pub async fn get_todos_app(pool: &PgPool) -> Result<Vec<TodoDto>, ErrorTodos> {
+    let todos_db = get_todos_db(&pool).await.map_err(db_err_to_app_err)?;
+    let todos_dto = todos_db.iter().map(|x| x.to_dto()).collect();
+    Ok(todos_dto)
 }
 
 pub async fn get_todo_app(pool: &PgPool, id: i32) -> Result<TodoWithoutCategoryDb, ErrorTodos> {
