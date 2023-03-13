@@ -4,7 +4,7 @@ use thiserror::Error;
 pub enum ErrorAuth {
     #[error("Email or password don't meet the requirements")]
     Validation,
-    #[error("The user doesn't exist or the password is invalid")]
+    #[error("The user doesn't exist or the password is incorrect")]
     InvalidCredentials,
     #[error("Couldn't create the JWT")]
     JwtCreation,

@@ -1,7 +1,7 @@
 use anyhow::Error;
 use sqlx::PgPool;
 
-use crate::categories::repository::db_dto::CategoryDb;
+use crate::categories::repository::models::CategoryDb;
 
 pub async fn get_categories_db(pool: &PgPool) -> Result<Vec<CategoryDb>, Error> {
     let categories = sqlx::query_as!(

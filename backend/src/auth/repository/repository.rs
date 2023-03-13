@@ -10,8 +10,8 @@ pub async fn register_db(
     email: &String,
     password: &String,
 ) -> Result<UserDb, Error> {
-    // TOOD this should be in another layer, methinks
     let hashed_password = hash(password, DEFAULT_COST)?;
+
     let user = sqlx::query_as!(
         UserDb,
         "

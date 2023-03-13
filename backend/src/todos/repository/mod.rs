@@ -1,2 +1,2 @@
-pub mod db_dto;
+pub mod models;
 pub mod repository;

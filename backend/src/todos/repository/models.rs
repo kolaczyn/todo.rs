@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::todos::api::dto::TodoDto;
+use crate::todos::api::form::TodoDto;
 
 #[derive(Serialize, Deserialize)]
 pub struct TodoWithCategoryDb {

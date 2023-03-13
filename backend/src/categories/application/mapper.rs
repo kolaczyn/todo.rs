@@ -1,4 +1,4 @@
-use crate::categories::repository::db_dto::CategoryDb;
+use crate::categories::repository::models::CategoryDb;
 
 use super::dto::CategoryDto;
 

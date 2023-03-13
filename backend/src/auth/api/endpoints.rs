@@ -6,7 +6,7 @@ use crate::{
     state::State,
 };
 
-use super::dto::{LoginFormDto, MeFormDto, RegisterFormDto};
+use super::form::{LoginFormDto, MeFormDto, RegisterFormDto};
 
 async fn register(mut req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();

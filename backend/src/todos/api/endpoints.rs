@@ -8,7 +8,7 @@ use crate::{
     },
 };
 
-use super::dto::{CreateTodoDto, UpdateTodoCategoryDto, UpdateTodoDto};
+use super::form::{CreateTodoDto, UpdateTodoCategoryDto, UpdateTodoDto};
 
 async fn get_todos(req: Request<State>) -> tide::Result<String> {
     let pool = req.state().pool.clone();
