@@ -13,3 +13,9 @@ export type Category = {
 	label: string;
 	color: string;
 };
+
+export type UserDto = {
+	email: string;
+	id: number;
+	jwt: string;
+};
