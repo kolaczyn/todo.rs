@@ -1,9 +1,11 @@
 ### How to setup
 
-Install Postgres on your system, then run the following command:
+1. Setup rust
+1. Setup Postgres
+1. Run the following commands (all of the inside the `backend/` directory)
 
 ```shell
 cargo install sqlx-cli
-sqlx migrate run --source backend/migrations
-cargo run --bin backend # or `make back`
+sqlx migrate run
+cargo run --backend
 ```
