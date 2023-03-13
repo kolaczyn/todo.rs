@@ -1,29 +1,15 @@
-use crate::todos::repository::models::TodoWithCategoryDb;
+use crate::todos::repository::models::TodoDb;
 
-use super::dto::{TodoCategoryDto, TodoDto};
+use super::dto::TodoDto;
 
-impl TodoWithCategoryDb {
-    fn get_category(&self) -> Option<TodoCategoryDto> {
-        match (
-            self.category_id,
-            self.category_label.to_owned(),
-            self.category_color.to_owned(),
-        ) {
-            (Some(c_id), Some(c_label), Some(c_color)) => Some(TodoCategoryDto {
-                id: c_id,
-                label: c_label,
-                color: c_color,
-            }),
-            _ => None,
-        }
-    }
+impl TodoDb {
     pub fn to_dto(&self) -> TodoDto {
         TodoDto {
             id: self.id,
             completed: self.completed,
             label: self.label.to_owned(),
             description: self.description.to_owned(),
-            category: self.get_category(),
+            category_id: self.category_id,
         }
     }
 }

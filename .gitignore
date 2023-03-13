@@ -5,3 +5,4 @@ todos.json
 db.sql
 db.sql-shm
 db.sql-wal
+.DS_STORE

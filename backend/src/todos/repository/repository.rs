@@ -1,16 +1,13 @@
 use sqlx::PgPool;
 
-use crate::todos::repository::models::{TodoWithCategoryDb, TodoWithoutCategoryDb};
+use crate::todos::repository::models::TodoDb;
 
-pub async fn get_todos_db(pool: &PgPool) -> Result<Vec<TodoWithCategoryDb>, sqlx::Error> {
+pub async fn get_todos_db(pool: &PgPool) -> Result<Vec<TodoDb>, sqlx::Error> {
     let todos = sqlx::query_as!(
-        TodoWithCategoryDb,
+        TodoDb,
         "
-        SELECT completed, t.label AS label, t.id AS id, description,
-        c.id AS category_id, c.label AS category_label, c.color AS category_color
-        FROM todos t
-        LEFT JOIN categories c
-        ON c.id = t.category_id
+        SELECT completed, label, id, description, category_id
+        FROM todos
         "
     )
     .fetch_all(pool)
@@ -19,14 +16,14 @@ pub async fn get_todos_db(pool: &PgPool) -> Result<Vec<TodoWithCategoryDb>, sqlx
     Ok(todos)
 }
 
-pub async fn get_todo_db(pool: &PgPool, id: i32) -> Result<TodoWithoutCategoryDb, sqlx::Error> {
+pub async fn get_todo_db(pool: &PgPool, id: i32) -> Result<TodoDb, sqlx::Error> {
     let todo = sqlx::query_as!(
-        TodoWithoutCategoryDb,
-        "
-        SELECT completed, label, id, description
+        TodoDb,
+        r#"
+        SELECT completed, label, id, description, category_id
         FROM todos
         WHERE id = $1
-        ",
+        "#,
         id
     )
     .fetch_one(pool)
@@ -35,17 +32,14 @@ pub async fn get_todo_db(pool: &PgPool, id: i32) -> Result<TodoWithoutCategoryDb
     Ok(todo)
 }
 
-pub async fn create_todo_db(
-    pool: &PgPool,
-    label: &String,
-) -> Result<TodoWithoutCategoryDb, sqlx::Error> {
+pub async fn create_todo_db(pool: &PgPool, label: &String) -> Result<TodoDb, sqlx::Error> {
     let todo = sqlx::query_as!(
-        TodoWithoutCategoryDb,
-        "
+        TodoDb,
+        r#"
         INSERT INTO todos(completed, label)
         VALUES($1, $2)
-        RETURNING id, label, description, completed
-        ",
+        RETURNING id, label, description, completed, category_id
+        "#,
         false,
         label
     )
@@ -59,14 +53,14 @@ pub async fn update_todo_db(
     pool: &PgPool,
     id: i32,
     completed: bool,
-) -> Result<TodoWithoutCategoryDb, sqlx::Error> {
+) -> Result<TodoDb, sqlx::Error> {
     let todo = sqlx::query_as!(
-        TodoWithoutCategoryDb,
+        TodoDb,
         "
         UPDATE todos
         SET completed = $1
         WHERE id = $2
-        RETURNING id, description, completed, label
+        RETURNING id, description, completed, label, category_id
         ",
         completed,
         id
@@ -81,13 +75,13 @@ pub async fn assign_todo_to_category_db(
     pool: &PgPool,
     todo_id: i32,
     category_id: i32,
-) -> Result<TodoWithoutCategoryDb, sqlx::Error> {
+) -> Result<TodoDb, sqlx::Error> {
     let todo = sqlx::query_as!(
-        TodoWithoutCategoryDb,
+        TodoDb,
         "
         UPDATE todos
         SET category_id = $1 WHERE id = $2
-        RETURNING id, completed, description, label
+        RETURNING id, completed, description, label, category_id
         ",
         category_id,
         todo_id
@@ -98,12 +92,12 @@ pub async fn assign_todo_to_category_db(
     Ok(todo)
 }
 
-pub async fn delete_todo_db(pool: &PgPool, id: i32) -> Result<TodoWithoutCategoryDb, sqlx::Error> {
+pub async fn delete_todo_db(pool: &PgPool, id: i32) -> Result<TodoDb, sqlx::Error> {
     let todo = sqlx::query_as!(
-        TodoWithoutCategoryDb,
+        TodoDb,
         "
         DELETE FROM todos WHERE id = $1
-        RETURNING id, completed, description, label
+        RETURNING id, completed, description, label, category_id
         ",
         id
     )

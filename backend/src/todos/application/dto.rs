@@ -13,5 +13,5 @@ pub struct TodoDto {
     pub label: String,
     pub description: Option<String>,
     pub completed: bool,
-    pub category: Option<TodoCategoryDto>,
+    pub category_id: Option<i32>,
 }
