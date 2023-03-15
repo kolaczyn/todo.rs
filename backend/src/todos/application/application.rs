@@ -32,7 +32,7 @@ fn db_err_to_app_err(err: sqlx::Error) -> ErrorTodos {
 async fn can_user_access_todo(pool: &PgPool, todo_id: i32, user_id: i32) -> bool {
     let todo = get_todo_db(pool, todo_id).await;
     match todo {
-        Ok(todo) => todo.user_id.contains(&user_id),
+        Ok(todo) => todo.user_id == user_id,
         Err(_) => false,
     }
 }
@@ -54,7 +54,7 @@ pub async fn get_todo_app(
         .await
         .map_err(db_err_to_app_err)?;
 
-    if todo.user_id.contains(&user_id) {
+    if todo.user_id == user_id {
         return Ok(todo.to_dto());
     }
     return Err(ErrorTodos::NotFound);

@@ -87,7 +87,8 @@ pub async fn assign_todo_to_category_db(
         TodoDb,
         "
         UPDATE todos
-        SET category_id = $1 WHERE id = $2
+        SET category_id = $1
+        WHERE id = $2
         RETURNING id, completed, description, label, category_id, user_id
         ",
         category_id,
@@ -103,7 +104,8 @@ pub async fn delete_todo_db(pool: &PgPool, id: i32) -> Result<TodoDb, sqlx::Erro
     let todo = sqlx::query_as!(
         TodoDb,
         "
-        DELETE FROM todos WHERE id = $1
+        DELETE FROM todos
+        WHERE id = $1
         RETURNING id, completed, description, label, category_id, user_id
         ",
         id
