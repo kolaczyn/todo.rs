@@ -15,7 +15,7 @@ async fn get_categories(req: Request<State>) -> tide::Result<String> {
 
     let categories: Vec<CategoryDto> = get_categories_db(pool)
         .await?
-        .iter()
+        .into_iter()
         .map(|x| x.to_dto())
         .collect();
 
@@ -37,7 +37,7 @@ async fn create_category(mut req: Request<State>) -> tide::Result<String> {
 
     let categories: Vec<CategoryDto> = create_category_db(&pool, &body.label, &body.color)
         .await?
-        .iter()
+        .into_iter()
         .map(|x| x.to_dto())
         .collect();
 

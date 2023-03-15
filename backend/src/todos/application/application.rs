@@ -26,10 +26,9 @@ fn db_err_to_app_err(err: sqlx::Error) -> ErrorTodos {
     }
 }
 
-// TODO return TodoWithCategoryDto instead of TodoWithCategoryDb
 pub async fn get_todos_app(pool: &PgPool) -> Result<Vec<TodoDto>, ErrorTodos> {
     let todos_db = get_todos_db(&pool).await.map_err(db_err_to_app_err)?;
-    let todos_dto = todos_db.iter().map(|x| x.to_dto()).collect();
+    let todos_dto = todos_db.into_iter().map(|x| x.to_dto()).collect();
     Ok(todos_dto)
 }
 

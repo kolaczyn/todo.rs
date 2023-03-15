@@ -23,11 +23,7 @@ pub async fn register_app(
         .map_err(|_| ErrorAuth::InvalidCredentials)?;
     let jwt = create_jwt(user_db.id, &user_db.email).map_err(|_| ErrorAuth::JwtCreation)?;
 
-    Ok(UserDto {
-        email: user_db.email.clone(),
-        id: user_db.id,
-        jwt,
-    })
+    Ok(user_db.to_dto(jwt))
 }
 
 pub async fn login_app(
@@ -43,9 +39,5 @@ pub async fn login_app(
         .map_err(|_| ErrorAuth::InvalidCredentials)?;
     let jwt = create_jwt(user_db.id, &user_db.email).map_err(|_| ErrorAuth::JwtCreation)?;
 
-    Ok(UserDto {
-        email: user_db.email.clone(),
-        id: user_db.id,
-        jwt,
-    })
+    Ok(user_db.to_dto(jwt))
 }
