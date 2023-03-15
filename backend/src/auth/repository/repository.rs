@@ -2,11 +2,12 @@ use anyhow::{anyhow, Error, Result};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use sqlx::PgPool;
 
+use crate::auth::repository::models::LoginQueryDb;
+
 use super::models::UserDb;
 
 pub async fn register_db(
     pool: &PgPool,
-    // TODO add somewhere validation checking if this a valid email
     email: &String,
     password: &String,
 ) -> Result<UserDb, Error> {
@@ -29,7 +30,8 @@ pub async fn register_db(
 }
 
 pub async fn login_db(pool: &PgPool, email: &String, password: &String) -> Result<UserDb> {
-    let user = sqlx::query!(
+    let user = sqlx::query_as!(
+        LoginQueryDb,
         "
         SELECT email, password_hash, id
         FROM users

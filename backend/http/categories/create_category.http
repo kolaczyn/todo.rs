@@ -1,5 +1,6 @@
 POST http://localhost:8080/v1/categories
 Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImpvaG5AZ29vZ2xlLmNvbG8iLCJpZCI6MTAsImV4cCI6MTAwMDAwMDAwMDB9.nvwfKqpiSSWMdm2R269v1rAJSlfA_r2dr4Eb3AcfXDE
 
 {
   "color": "#0000ff",

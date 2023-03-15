@@ -5,12 +5,14 @@ use crate::{
         application::dto::CategoryDto,
         repository::repository::{create_category_db, get_categories_db, get_category_db},
     },
+    common::jwt::Claims,
     state::State,
 };
 
 use super::form::CreateCategoryDto;
 
 async fn get_categories(req: Request<State>) -> tide::Result<String> {
+    let _claims = req.ext::<Claims>();
     let pool = &req.state().pool;
 
     let categories: Vec<CategoryDto> = get_categories_db(pool)
@@ -23,6 +25,7 @@ async fn get_categories(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn get_category(req: Request<State>) -> tide::Result<String> {
+    let _claims = req.ext::<Claims>();
     let pool = &req.state().pool;
     let id: i32 = req.param("id")?.parse()?;
 
@@ -32,6 +35,7 @@ async fn get_category(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn create_category(mut req: Request<State>) -> tide::Result<String> {
+    let _claims = req.ext::<Claims>();
     let body: CreateCategoryDto = req.body_json().await?;
     let pool = &req.state().pool;
 

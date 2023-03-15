@@ -1,6 +1,3 @@
 POST http://localhost:8080/v1/auth/me
 Content-Type: application/json
-
-{
-  "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJlbWFpbCI6ImpvaG5AZ29vZ2xlLmNvbSIsImlkIjoxLCJleHAiOjE2Nzg2NTg5Mjh9.nNPFORS6waIKdqKgbrvDpP3QmV2xBrNj-zHBkl9E94vVFmcrkezkkOfYHXeRLtBKqdMWJFnmbrG6H4V6GQJ3vw"
-}
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImpvaG5AZ29vZ2xlLmNvbG8iLCJpZCI6MTAsImV4cCI6MTAwMDAwMDAwMDB9.nvwfKqpiSSWMdm2R269v1rAJSlfA_r2dr4Eb3AcfXDE

@@ -2,11 +2,11 @@ use tide::Request;
 
 use crate::{
     auth::application::application::{login_app, register_app},
-    common::jwt::read_jwt,
+    common::jwt::Claims,
     state::State,
 };
 
-use super::form::{LoginFormDto, MeFormDto, RegisterFormDto};
+use super::form::{LoginFormDto, RegisterFormDto};
 
 async fn register(mut req: Request<State>) -> tide::Result<String> {
     let body: RegisterFormDto = req.body_json().await?;
@@ -24,11 +24,8 @@ async fn login(mut req: Request<State>) -> tide::Result<String> {
     Ok(serde_json::to_string_pretty(&user)?)
 }
 
-async fn me(mut req: Request<State>) -> tide::Result<String> {
-    let body: MeFormDto = req.body_json().await?;
-    let jwt = body.jwt;
-
-    let claims = read_jwt(&jwt)?;
+async fn me(req: Request<State>) -> tide::Result<String> {
+    let claims = req.ext::<Claims>();
 
     Ok(serde_json::to_string_pretty(&claims)?)
 }

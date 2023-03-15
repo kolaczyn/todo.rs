@@ -1,6 +1,7 @@
 use tide::Request;
 
 use crate::{
+    common::jwt::Claims,
     state::State,
     todos::application::application::{
         assign_todo_to_category_app, create_todo_app, delete_todo_app, get_todo_app, get_todos_app,
@@ -18,6 +19,7 @@ fn app_err_to_response(err: ErrorTodos) -> tide::Error {
 }
 
 async fn get_todos(req: Request<State>) -> tide::Result<String> {
+    let _claims = req.ext::<Claims>();
     let pool = &req.state().pool;
 
     let todos = get_todos_app(pool).await;
@@ -28,6 +30,7 @@ async fn get_todos(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn get_todo(req: Request<State>) -> tide::Result<String> {
+    let _claims = req.ext::<Claims>();
     let pool = &req.state().pool;
     let id: i32 = req.param("id")?.parse()?;
 
@@ -39,6 +42,7 @@ async fn get_todo(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn create_todo(mut req: Request<State>) -> tide::Result<String> {
+    let _claims = req.ext::<Claims>();
     let label = req.body_json::<CreateTodoForm>().await?.label;
     let pool = &req.state().pool;
 
@@ -50,6 +54,7 @@ async fn create_todo(mut req: Request<State>) -> tide::Result<String> {
 }
 
 async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
+    let _claims = req.ext::<Claims>();
     let completed = req.body_json::<UpdateTodoForm>().await?.completed;
     let pool = &req.state().pool;
     let id: i32 = req.param("id")?.parse()?;
@@ -62,6 +67,7 @@ async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
 }
 
 async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String> {
+    let _claims = req.ext::<Claims>();
     let category_id = req.body_json::<UpdateTodoCategoryForm>().await?.category_id;
     let pool = &req.state().pool;
     let id: i32 = req.param("id")?.parse()?;
@@ -74,6 +80,7 @@ async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String
 }
 
 async fn delete_todo(req: Request<State>) -> tide::Result<String> {
+    let _claims = req.ext::<Claims>();
     let pool = &req.state().pool;
     let id: i32 = req.param("id")?.parse()?;
 

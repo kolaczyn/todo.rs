@@ -423,6 +423,7 @@ dependencies = [
  "sqlx",
  "thiserror",
  "tide",
+ "tide-jwt",
 ]
 
 [[package]]
@@ -2923,6 +2924,19 @@ dependencies = [
  "route-recognizer",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "tide-jwt"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77fe3d354f811fac35a6effa0e5d06639c166e44952e48207f8ad76cb233cdd5"
+dependencies = [
+ "async-trait",
+ "http-types",
+ "jsonwebtoken",
+ "serde",
+ "tide",
 ]
 
 [[package]]
