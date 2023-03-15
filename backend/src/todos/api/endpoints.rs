@@ -1,7 +1,7 @@
 use tide::Request;
 
 use crate::{
-    common::jwt::Claims,
+    common::{http_error::HttpError, jwt::Claims},
     state::State,
     todos::application::application::{
         assign_todo_to_category_app, create_todo_app, delete_todo_app, get_todo_app, get_todos_app,
@@ -15,14 +15,15 @@ fn app_err_to_response(err: ErrorTodos) -> tide::Error {
     match err {
         ErrorTodos::NotFound => tide::Error::from_str(404, "Not found"),
         ErrorTodos::DbError => tide::Error::from_str(500, "Server eror"),
+        ErrorTodos::Unauthorized => tide::Error::from_str(401, "Unauthorized"),
     }
 }
 
 async fn get_todos(req: Request<State>) -> tide::Result<String> {
-    let _claims = req.ext::<Claims>();
+    let claims = req.ext::<Claims>().ok_or(HttpError::Unauthorized)?;
     let pool = &req.state().pool;
 
-    let todos = get_todos_app(pool).await;
+    let todos = get_todos_app(pool, claims.id).await;
     match todos.map_err(app_err_to_response) {
         Ok(todos) => Ok(serde_json::to_string_pretty(&todos)?),
         Err(err) => Err(err),
@@ -30,11 +31,11 @@ async fn get_todos(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn get_todo(req: Request<State>) -> tide::Result<String> {
-    let _claims = req.ext::<Claims>();
+    let claims = req.ext::<Claims>().ok_or(HttpError::Unauthorized)?;
     let pool = &req.state().pool;
-    let id: i32 = req.param("id")?.parse()?;
+    let todo_id: i32 = req.param("id")?.parse()?;
 
-    let todo = get_todo_app(pool, id).await;
+    let todo = get_todo_app(pool, todo_id, claims.id).await;
     match todo.map_err(app_err_to_response) {
         Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
         Err(err) => Err(err),
@@ -42,11 +43,11 @@ async fn get_todo(req: Request<State>) -> tide::Result<String> {
 }
 
 async fn create_todo(mut req: Request<State>) -> tide::Result<String> {
-    let _claims = req.ext::<Claims>();
     let label = req.body_json::<CreateTodoForm>().await?.label;
+    let claims = req.ext::<Claims>().ok_or(HttpError::Unauthorized)?;
     let pool = &req.state().pool;
 
-    let todo = create_todo_app(&pool, &label).await;
+    let todo = create_todo_app(&pool, &label, claims.id).await;
     match todo.map_err(app_err_to_response) {
         Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
         Err(err) => Err(err),
@@ -54,12 +55,12 @@ async fn create_todo(mut req: Request<State>) -> tide::Result<String> {
 }
 
 async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
-    let _claims = req.ext::<Claims>();
     let completed = req.body_json::<UpdateTodoForm>().await?.completed;
+    let claims = req.ext::<Claims>().ok_or(HttpError::Unauthorized)?;
     let pool = &req.state().pool;
-    let id: i32 = req.param("id")?.parse()?;
+    let todo_id: i32 = req.param("id")?.parse()?;
 
-    let todo = update_todo_app(&pool, id, completed).await;
+    let todo = update_todo_app(&pool, todo_id, completed, claims.id).await;
     match todo.map_err(app_err_to_response) {
         Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
         Err(err) => Err(err),
@@ -67,12 +68,12 @@ async fn update_todo(mut req: Request<State>) -> tide::Result<String> {
 }
 
 async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String> {
-    let _claims = req.ext::<Claims>();
     let category_id = req.body_json::<UpdateTodoCategoryForm>().await?.category_id;
+    let claims = req.ext::<Claims>().ok_or(HttpError::Unauthorized)?;
     let pool = &req.state().pool;
-    let id: i32 = req.param("id")?.parse()?;
+    let todo_id: i32 = req.param("id")?.parse()?;
 
-    let todo = assign_todo_to_category_app(pool, id, category_id).await;
+    let todo = assign_todo_to_category_app(pool, todo_id, category_id, claims.id).await;
     match todo.map_err(app_err_to_response) {
         Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
         Err(err) => Err(err),
@@ -80,11 +81,11 @@ async fn assign_todo_to_category(mut req: Request<State>) -> tide::Result<String
 }
 
 async fn delete_todo(req: Request<State>) -> tide::Result<String> {
-    let _claims = req.ext::<Claims>();
+    let claims = req.ext::<Claims>().ok_or(HttpError::Unauthorized)?;
     let pool = &req.state().pool;
-    let id: i32 = req.param("id")?.parse()?;
+    let todo_id: i32 = req.param("id")?.parse()?;
 
-    let todo = delete_todo_app(pool, id).await;
+    let todo = delete_todo_app(pool, todo_id, claims.id).await;
     match todo.map_err(app_err_to_response) {
         Ok(todo) => Ok(serde_json::to_string_pretty(&todo)?),
         Err(err) => Err(err),
