@@ -31,10 +31,45 @@
 	};
 </script>
 
-<b>Register form</b>
-<input bind:value={email} type="email" />
-<input bind:value={password} type="password" />
-<button on:click={handleClick}>Register</button>
-<div>
-	{jwt ? `Your jwt is ${jwt}. Redirecting to login page in 2 seconds...` : "You don't have a jwt"}
+<div class="field is-horizontal">
+	<div class="field-label is-normal">
+		<label for="email" class="label has-text-white">Email</label>
+	</div>
+	<div class="field-body">
+		<div class="field">
+			<p class="control">
+				<input
+					bind:value={email}
+					id="email"
+					class="input"
+					type="email"
+					placeholder="Recipient email"
+				/>
+			</p>
+		</div>
+	</div>
 </div>
+
+<div class="field is-horizontal">
+	<div class="field-label is-normal">
+		<label for="password" class="label has-text-white">Password</label>
+	</div>
+	<div class="field-body">
+		<div class="field">
+			<p class="control">
+				<input bind:value={password} id="password" class="input" type="password" />
+			</p>
+		</div>
+	</div>
+</div>
+
+<!-- <div class="container is-flex is-justify-content-space-between"> -->
+<div class="is-flex is-justify-content-space-between">
+	<div />
+	<button class="button is-secondary" on:click={handleClick}>Register</button>
+</div>
+{#if jwt}
+	<div>
+		Your jwt is {jwt}. Redirecting to login page in 2 seconds...
+	</div>
+{/if}

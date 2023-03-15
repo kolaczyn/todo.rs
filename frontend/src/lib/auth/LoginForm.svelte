@@ -26,7 +26,7 @@
 	};
 </script>
 
-<b>Login form</b>
+<h1 class="is-size-2">Login Form</h1>
 <input bind:value={email} type="email" />
 <input bind:value={password} type="password" />
 <button on:click={handleClick}>Login</button>

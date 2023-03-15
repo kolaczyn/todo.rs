@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AppLayout from '$lib/layout/AppLayout.svelte';
 	import { onMount } from 'svelte';
 	import type { Category, Todo } from '../types';
 
@@ -23,12 +24,14 @@
 	});
 </script>
 
-<h1>Welcome to the Todo App!</h1>
-<h2>Todos:</h2>
-{#each todos as todo}
-	<li>{todo.id} {todo.label}</li>
-{/each}
-<h3>Categories:</h3>
-{#each categories as category}
-	<li style={`color: ${category.color};`}>{category.id} {category.label}</li>
-{/each}
+<AppLayout>
+	<h1 class="is-size-2">Welcome to the Todo App!</h1>
+	<h2>Todos:</h2>
+	{#each todos as todo}
+		<li>{todo.id} {todo.label}</li>
+	{/each}
+	<h3>Categories:</h3>
+	{#each categories as category}
+		<li style={`color: ${category.color};`}>{category.id} {category.label}</li>
+	{/each}
+</AppLayout>
