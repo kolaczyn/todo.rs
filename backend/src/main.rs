@@ -3,7 +3,7 @@ use std::env;
 
 use dotenv::dotenv;
 use jsonwebtoken::{DecodingKey, Validation};
-use tide::security::CorsMiddleware;
+use tide::{http::headers::HeaderValue, security::CorsMiddleware};
 use tide_jwt::JwtAuthenticationDecoder;
 
 use crate::{
@@ -33,7 +33,15 @@ async fn main() -> tide::Result<()> {
         DecodingKey::from_base64_secret(&jwt_secret)?,
     ));
 
-    app.with(CorsMiddleware::new().allow_origin("*"));
+    app.with(
+        CorsMiddleware::new()
+            .allow_methods(
+                "GET, POST, OPTIONS, PATCH, DELETE"
+                    .parse::<HeaderValue>()
+                    .unwrap(),
+            )
+            .allow_origin("*"),
+    );
 
     tide::log::start();
 

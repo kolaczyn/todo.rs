@@ -9,6 +9,7 @@ pub async fn get_todos_db(pool: &PgPool, user_id: i32) -> Result<Vec<TodoDb>, sq
         SELECT completed, label, id, description, category_id, user_id
         FROM todos
         WHERE user_id = $1
+        ORDER BY id
         ",
         user_id
     )
