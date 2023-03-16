@@ -1,44 +1,13 @@
-<script lang="ts">
+<script>
 	import { isAuthorized } from '$lib/common/auth/isAuthorized';
 	import AppLayout from '$lib/layout/AppLayout.svelte';
-	import { onMount } from 'svelte';
-	import type { Category, Todo } from '../types';
-
-	const endpoint: string = 'http://localhost:8080';
-
-	let todos: Todo[] = [];
-	let categories: Category[] = [];
-
-	const fetchTodos = async () => {
-		const response: Todo[] = await fetch(`${endpoint}/v1/todos`).then((x) => x.json());
-		todos = response;
-	};
-
-	const fetchCategories = async () => {
-		const response: Category[] = await fetch(`${endpoint}/v1/categories`).then((x) => x.json());
-		categories = response;
-	};
-
-	onMount(async () => {
-		fetchTodos();
-		fetchCategories();
-	});
+	import Todos from '$lib/todos/Todos.svelte';
 </script>
 
 <AppLayout>
 	{#if isAuthorized()}
-		<hh>You are authorized</hh>
+		<Todos />
 	{:else}
-		<hh>You are not authorized</hh>
+		<h1>You can't access the app, unless you <a href="/register">register</a></h1>
 	{/if}
-
-	<h1 class="is-size-2">Welcome to the Todo App!</h1>
-	<h2>Todos:</h2>
-	{#each todos as todo}
-		<li>{todo.id} {todo.label}</li>
-	{/each}
-	<h3>Categories:</h3>
-	{#each categories as category}
-		<li style={`color: ${category.color};`}>{category.id} {category.label}</li>
-	{/each}
 </AppLayout>

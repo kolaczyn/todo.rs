@@ -2,6 +2,7 @@
 	import type { UserDto } from '../../types';
 	import Cookies from 'js-cookie';
 	import AuthForm from './AuthForm.svelte';
+	import { goto } from '$app/navigation';
 
 	const handleSubmit = async (email: string, password: string) => {
 		const url = 'http://localhost:8080/v1/auth/register';
@@ -17,6 +18,7 @@
 		}).then((x) => x.json());
 		const jwt = response.jwt;
 		Cookies.set('jwt', jwt);
+		goto('/');
 	};
 </script>
 

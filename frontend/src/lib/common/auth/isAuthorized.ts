@@ -1,3 +1,3 @@
 import Cookies from 'js-cookie';
 
-export const isAuthorized = () => Cookies.get('jwt');
+export const isAuthorized = () => !!Cookies.get('jwt');
