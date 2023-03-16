@@ -6,7 +6,7 @@
 <div class="has-background-black-ter has-text-white is-flex is-flex-direction-column full-height">
 	<Header />
 	<div class="is-flex-grow-1">
-		<div class="container my-4">
+		<div class="container my-4 px-4">
 			<slot />
 		</div>
 	</div>

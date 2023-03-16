@@ -1,12 +1,8 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import type { UserDto } from '../../types';
+	import AuthForm from './AuthForm.svelte';
 
-	let email = '';
-	let password = '';
-	let jwt: null | string = null;
-
-	const fetchRegister = async () => {
+	const handleSubmit = async (email: string, password: string) => {
 		const url = 'http://localhost:8080/v1/auth/register';
 		const response: UserDto = await fetch(url, {
 			method: 'POST',
@@ -18,58 +14,11 @@
 				password
 			})
 		}).then((x) => x.json());
-		return response;
-	};
-
-	const handleClick = async () => {
-		const response = await fetchRegister();
-		jwt = response.jwt;
-
-		setTimeout(() => {
-			goto('/login');
-		}, 2_000);
+		const jwt = response.jwt;
+		console.log({ jwt });
 	};
 </script>
 
-<div class="field is-horizontal">
-	<div class="field-label is-normal">
-		<label for="email" class="label has-text-white">Email</label>
-	</div>
-	<div class="field-body">
-		<div class="field">
-			<p class="control">
-				<input
-					bind:value={email}
-					id="email"
-					class="input"
-					type="email"
-					placeholder="Recipient email"
-				/>
-			</p>
-		</div>
-	</div>
-</div>
+<h1 class="is-size-2">Register Form</h1>
 
-<div class="field is-horizontal">
-	<div class="field-label is-normal">
-		<label for="password" class="label has-text-white">Password</label>
-	</div>
-	<div class="field-body">
-		<div class="field">
-			<p class="control">
-				<input bind:value={password} id="password" class="input" type="password" />
-			</p>
-		</div>
-	</div>
-</div>
-
-<!-- <div class="container is-flex is-justify-content-space-between"> -->
-<div class="is-flex is-justify-content-space-between">
-	<div />
-	<button class="button is-secondary" on:click={handleClick}>Register</button>
-</div>
-{#if jwt}
-	<div>
-		Your jwt is {jwt}. Redirecting to login page in 2 seconds...
-	</div>
-{/if}
+<AuthForm {handleSubmit} />
