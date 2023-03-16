@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { PUBLIC_API_URL } from '$env/static/public';
 	import { onMount } from 'svelte';
 	import type { Category, Todo } from '../../types';
 	import { getJwt } from '../common/auth/getJwt';
@@ -6,13 +7,11 @@
 	import CategoriesList from './CategoriesList.svelte';
 	import TodosList from './TodosList.svelte';
 
-	const endpoint: string = 'http://localhost:8080';
-
 	let todos: Todo[] = [];
 	let categories: Category[] = [];
 
 	const fetchTodos = async () => {
-		const response: Todo[] = await fetch(`${endpoint}/v1/todos`, {
+		const response: Todo[] = await fetch(`${PUBLIC_API_URL}/v1/todos`, {
 			headers: {
 				Authorization: `Bearer ${getJwt()}`
 			}
@@ -21,7 +20,7 @@
 	};
 
 	const fetchCategories = async () => {
-		const response: Category[] = await fetch(`${endpoint}/v1/categories`, {
+		const response: Category[] = await fetch(`${PUBLIC_API_URL}/v1/categories`, {
 			headers: {
 				Authorization: `Bearer ${getJwt()}`
 			}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { PUBLIC_API_URL } from '$env/static/public';
 	import { getJwt } from '$lib/common/auth/getJwt';
 	import type { Todo } from '../../types';
 
@@ -7,10 +8,8 @@
 	let isLoading = false;
 
 	const handleClick = async () => {
-		const endpoint: string = 'http://localhost:8080';
-
 		isLoading = true;
-		const response: Todo = await fetch(`${endpoint}/v1/todos`, {
+		const response: Todo = await fetch(`${PUBLIC_API_URL}/v1/todos`, {
 			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${getJwt()}`

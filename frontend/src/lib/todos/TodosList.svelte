@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { PUBLIC_API_URL } from '$env/static/public';
 	import { getJwt } from '$lib/common/auth/getJwt';
 	import type { Todo } from '../../types';
 
@@ -6,7 +7,7 @@
 	export let refetchCallback: () => Promise<void>;
 
 	const setTodoCompletedStatus = async (id: number, newCompleted: boolean) => {
-		await fetch(`http://localhost:8080/v1/todos/${id}`, {
+		await fetch(`${PUBLIC_API_URL}/v1/todos/${id}`, {
 			method: 'PATCH',
 			headers: {
 				Authorization: `Bearer ${getJwt()}`
@@ -19,7 +20,7 @@
 	};
 
 	const deleteTodo = async (id: number) => {
-		await fetch(`http://localhost:8080/v1/todos/${id}`, {
+		await fetch(`${PUBLIC_API_URL}/v1/todos/${id}`, {
 			method: 'DELETE',
 			headers: {
 				Authorization: `Bearer ${getJwt()}`
