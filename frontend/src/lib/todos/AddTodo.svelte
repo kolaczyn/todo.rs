@@ -9,7 +9,7 @@
 
 	const handleClick = async () => {
 		isLoading = true;
-		const response: Todo = await fetch(`${PUBLIC_API_URL}/v1/todos`, {
+		await fetch(`${PUBLIC_API_URL}/v1/todos`, {
 			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${getJwt()}`

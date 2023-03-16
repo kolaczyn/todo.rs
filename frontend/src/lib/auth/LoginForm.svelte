@@ -6,7 +6,7 @@
 	import { PUBLIC_API_URL } from '$env/static/public';
 
 	const handleSubmit = async (email: string, password: string) => {
-		const url = `${PUBLIC_API_URL}/v1/auth/login';
+		const url = `${PUBLIC_API_URL}/v1/auth/login`;
 		const response: UserDto = await fetch(url, {
 			method: 'POST',
 			headers: {
