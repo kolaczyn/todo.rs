@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { UserDto } from '../../types';
+	import Cookies from 'js-cookie';
 	import AuthForm from './AuthForm.svelte';
 
 	const handleSubmit = async (email: string, password: string) => {
@@ -15,10 +16,9 @@
 			})
 		}).then((x) => x.json());
 		const jwt = response.jwt;
-		console.log({ jwt });
+		Cookies.set('jwt', jwt);
 	};
 </script>
 
 <h1 class="is-size-2">Register Form</h1>
-
 <AuthForm {handleSubmit} />

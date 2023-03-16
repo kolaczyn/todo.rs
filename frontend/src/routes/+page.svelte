@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { isAuthorized } from '$lib/common/auth/isAuthorized';
 	import AppLayout from '$lib/layout/AppLayout.svelte';
 	import { onMount } from 'svelte';
 	import type { Category, Todo } from '../types';
@@ -25,6 +26,12 @@
 </script>
 
 <AppLayout>
+	{#if isAuthorized()}
+		<hh>You are authorized</hh>
+	{:else}
+		<hh>You are not authorized</hh>
+	{/if}
+
 	<h1 class="is-size-2">Welcome to the Todo App!</h1>
 	<h2>Todos:</h2>
 	{#each todos as todo}
