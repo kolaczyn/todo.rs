@@ -1,6 +1,6 @@
 /target
 backend/target
-frontend/target
+seed/target
 todos.json
 db.sql
 db.sql-shm
