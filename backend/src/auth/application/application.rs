@@ -1,14 +1,11 @@
 use sqlx::PgPool;
 
 use crate::{
-    auth::{
-        domain::validation::are_credentials_valid,
-        repository::repository::{login_db, register_db},
-    },
+    auth::repository::repository::{login_db, register_db},
     common::get_jwt::get_jwt,
 };
 
-use super::{dto::UserDto, error::ErrorAuth};
+use super::{dto::UserDto, error::ErrorAuth, validation::are_credentials_valid};
 
 pub async fn register_app(
     pool: &PgPool,
