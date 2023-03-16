@@ -3,7 +3,7 @@ name: Continous Integration
 on:
   push:
     branches:
-      - 'main'
+      - "main"
   pull_request:
     branches:
       - main
@@ -11,7 +11,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Frontend: format, Lint, Check Types, test
+    name: Frontend - format, Lint, Check Types, test
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
