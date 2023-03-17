@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { UserDto } from '../../types';
-	import Cookies from 'js-cookie';
 	import AuthForm from './AuthForm.svelte';
 	import { goto } from '$app/navigation';
 	import { PUBLIC_API_URL } from '$env/static/public';
+	import { jwtStore } from '$lib/store/jwtStore';
 
 	const handleSubmit = async (email: string, password: string) => {
 		const url = `${PUBLIC_API_URL}/v1/auth/register`;
@@ -18,7 +18,7 @@
 			})
 		}).then((x) => x.json());
 		const jwt = response.jwt;
-		Cookies.set('jwt', jwt);
+		jwtStore.setAuth(jwt);
 		goto('/');
 	};
 </script>

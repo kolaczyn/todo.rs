@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { PUBLIC_API_URL } from '$env/static/public';
-	import { getJwt } from '$lib/common/auth/getJwt';
+	import { jwtStore } from '$lib/store/jwtStore';
 	import type { Todo } from '../../types';
 
 	export let refetchCallback: () => Promise<void>;
@@ -12,7 +12,7 @@
 		await fetch(`${PUBLIC_API_URL}/v1/todos`, {
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${getJwt()}`
+				Authorization: `Bearer ${$jwtStore}`
 			},
 			body: JSON.stringify({
 				label: value

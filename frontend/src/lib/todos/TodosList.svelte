@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { PUBLIC_API_URL } from '$env/static/public';
-	import { getJwt } from '$lib/common/auth/getJwt';
+	import { jwtStore } from '$lib/store/jwtStore';
 	import type { Todo } from '../../types';
 
 	export let todos: Todo[] = [];
@@ -10,7 +10,7 @@
 		await fetch(`${PUBLIC_API_URL}/v1/todos/${id}`, {
 			method: 'PATCH',
 			headers: {
-				Authorization: `Bearer ${getJwt()}`
+				Authorization: `Bearer ${$jwtStore}`
 			},
 			body: JSON.stringify({
 				completed: newCompleted
@@ -23,7 +23,7 @@
 		await fetch(`${PUBLIC_API_URL}/v1/todos/${id}`, {
 			method: 'DELETE',
 			headers: {
-				Authorization: `Bearer ${getJwt()}`
+				Authorization: `Bearer ${$jwtStore}`
 			}
 		}).then((x) => x.json());
 
