@@ -1,15 +1,19 @@
 <script>
 	import AppLayout from '$lib/layout/AppLayout.svelte';
 	import { jwtStore } from '$lib/store/jwtStore';
+	import { onMount } from 'svelte';
 
-	setTimeout(() => {
-		jwtStore.subscribe((jwt) => {
-			if (jwt) window.location.reload();
-		});
-	}, 1000);
+	export let data;
+
+	onMount(() => {
+		setTimeout(() => {
+			jwtStore.setAuth(null);
+			window.location.reload();
+		}, 1000);
+	});
 </script>
 
-<AppLayout>
+<AppLayout isLoggedIn={data.isLoggedIn}>
 	{#if $jwtStore}
 		<h1 class="is-size-1 has-text-centered">Logging out. Please wait a second...</h1>
 	{:else}
