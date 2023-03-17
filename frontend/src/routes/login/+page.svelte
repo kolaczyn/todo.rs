@@ -5,6 +5,9 @@
 	export let data;
 </script>
 
+<svelte:head>
+	<title>Todo App | Login</title>
+</svelte:head>
 <AppLayout isLoggedIn={data.isLoggedIn}>
 	<LoginForm />
 </AppLayout>

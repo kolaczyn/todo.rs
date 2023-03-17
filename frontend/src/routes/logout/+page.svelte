@@ -13,6 +13,9 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Todo App | Logout</title>
+</svelte:head>
 <AppLayout isLoggedIn={data.isLoggedIn}>
 	{#if $jwtStore}
 		<h1 class="is-size-1 has-text-centered">Logging out. Please wait a second...</h1>

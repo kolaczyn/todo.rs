@@ -6,6 +6,10 @@
 	export let data;
 </script>
 
+<svelte:head>
+	<title>Todo App | Home</title>
+</svelte:head>
+
 <AppLayout isLoggedIn={data.isLoggedIn}>
 	{#if $jwtStore}
 		<Todos />
