@@ -12,5 +12,5 @@ pub struct UpdateTodoForm {
 
 #[derive(Serialize, Deserialize)]
 pub struct UpdateTodoCategoryForm {
-    pub category_id: i32,
+    pub category_id: Option<i32>,
 }

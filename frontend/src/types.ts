@@ -3,10 +3,8 @@ export type Todo = {
 	label: string;
 	description: string | null;
 	completed: boolean;
-	category: TodoCategory | null;
+	category_id: number;
 };
-
-export type TodoCategory = Category;
 
 export type Category = {
 	id: number;

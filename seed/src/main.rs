@@ -6,7 +6,7 @@ use dotenv::dotenv;
 async fn trunkate_tables(pool: &PgPool) -> Result<(), anyhow::Error> {
     sqlx::query!(
         r#"
-        TRUNCATE users, todos;
+        TRUNCATE users, todos, categories RESTART IDENTITY;
         "#
     )
     .execute(pool)
@@ -77,10 +77,38 @@ async fn insert_todos(pool: &PgPool) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+async fn insert_category(
+    pool: &PgPool,
+    id: i32,
+    label: &str,
+    color: &str,
+) -> Result<(), anyhow::Error> {
+    sqlx::query!(
+        r#"
+        INSERT INTO categories(id, label, color)
+        VALUES($1, $2, $3)
+        "#,
+        id,
+        label,
+        color,
+    )
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+async fn insert_categories(pool: &PgPool) -> Result<(), anyhow::Error> {
+    insert_category(pool, 101, "Work", "#f5cb5c").await?;
+    insert_category(pool, 102, "Home", "#242423").await?;
+    insert_category(pool, 103, "Personal", "#E8EDDF").await?;
+    Ok(())
+}
+
 async fn seed(pool: &PgPool) -> Result<(), anyhow::Error> {
     trunkate_tables(pool).await?;
     insert_users(pool).await?;
     insert_todos(pool).await?;
+    insert_categories(pool).await?;
     Ok(())
 }
 

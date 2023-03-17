@@ -36,5 +36,5 @@
 
 <h1 class="is-size-2">Welcome to the Todo App!</h1>
 <AddTodo refetchCallback={fetchTodos} />
-<TodosList {todos} refetchCallback={fetchTodos} />
+<TodosList {todos} {categories} refetchCallback={fetchTodos} />
 <CategoriesList {categories} />

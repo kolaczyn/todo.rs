@@ -82,7 +82,7 @@ pub async fn update_todo_db(
 pub async fn assign_todo_to_category_db(
     pool: &PgPool,
     todo_id: i32,
-    category_id: i32,
+    category_id: Option<i32>,
 ) -> Result<TodoDb, sqlx::Error> {
     let todo = sqlx::query_as!(
         TodoDb,

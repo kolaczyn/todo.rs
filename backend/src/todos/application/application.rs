@@ -90,7 +90,7 @@ pub async fn update_todo_app(
 pub async fn assign_todo_to_category_app(
     pool: &PgPool,
     todo_id: i32,
-    category_id: i32,
+    category_id: Option<i32>,
     user_id: i32,
 ) -> Result<TodoDto, ErrorTodos> {
     let can_access = can_user_access_todo(pool, todo_id, user_id).await;
