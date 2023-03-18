@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import { jwtStore } from '$lib/store/jwtStore';
-	import type { Todo } from '../../types';
 
 	export let refetchCallback: () => Promise<void>;
 	let value = '';

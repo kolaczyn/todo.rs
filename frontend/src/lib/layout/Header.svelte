@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let isLoggedIn: boolean = false;
+	export let isLoggedIn = false;
 </script>
 
 <header class="p-3 has-background-black-bis has-text-centered has-text-white">
