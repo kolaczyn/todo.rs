@@ -17,7 +17,10 @@ pub enum ErrorCategories {
     ColorIsNotNice,
 }
 
-use super::{color_validation::is_color_nice, dto::CategoryDto};
+use super::{
+    color_validation::{is_color_nice, NICE_COLOR},
+    dto::CategoryDto,
+};
 
 pub async fn get_categories_app(pool: &PgPool) -> Result<Vec<CategoryDto>, sqlx::Error> {
     let categories: Vec<CategoryDto> = get_categories_db(pool)
@@ -51,4 +54,8 @@ pub async fn create_category_app(
         .collect();
 
     Ok(categories)
+}
+
+pub fn get_valid_colors_app() -> Vec<&'static str> {
+    NICE_COLOR.to_vec()
 }

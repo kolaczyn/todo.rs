@@ -2,7 +2,7 @@ use tide::Request;
 
 use crate::{
     categories::application::applicaiton::{
-        create_category_app, get_categories_app, get_category_app,
+        create_category_app, get_categories_app, get_category_app, get_valid_colors_app,
     },
     common::{http_error::HttpError, jwt::Claims},
     state::State,
@@ -39,10 +39,16 @@ async fn create_category(mut req: Request<State>) -> tide::Result<String> {
     Ok(serde_json::to_string_pretty(&categories)?)
 }
 
+async fn get_valid_colors(_req: Request<State>) -> tide::Result<String> {
+    let colors = get_valid_colors_app();
+    Ok(serde_json::to_string_pretty(&colors)?)
+}
+
 pub fn categories_endpoints(state: State) -> tide::Server<State> {
     let mut api = tide::with_state(state);
 
     api.at("/").get(get_categories);
+    api.at("/valid-colors").get(get_valid_colors);
     api.at("/:id").get(get_category);
     api.at("/").post(create_category);
 

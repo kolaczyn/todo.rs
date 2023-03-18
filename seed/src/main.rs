@@ -98,9 +98,9 @@ async fn insert_category(
 }
 
 async fn insert_categories(pool: &PgPool) -> Result<(), anyhow::Error> {
-    insert_category(pool, 101, "Work", "#f5cb5c").await?;
-    insert_category(pool, 102, "Home", "#242423").await?;
-    insert_category(pool, 103, "Personal", "#E8EDDF").await?;
+    insert_category(pool, 101, "Work", "#584B53").await?;
+    insert_category(pool, 102, "Home", "#D6E3F8").await?;
+    insert_category(pool, 103, "Personal", "#FEF5EF").await?;
     Ok(())
 }
 
