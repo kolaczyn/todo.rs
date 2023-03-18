@@ -1,9 +1,8 @@
 use tide::Request;
 
 use crate::{
-    categories::{
-        application::dto::CategoryDto,
-        repository::repository::{create_category_db, get_categories_db, get_category_db},
+    categories::application::applicaiton::{
+        create_category_app, get_categories_app, get_category_app,
     },
     common::{http_error::HttpError, jwt::Claims},
     state::State,
@@ -15,11 +14,7 @@ async fn get_categories(req: Request<State>) -> tide::Result<String> {
     let _claims = req.ext::<Claims>().ok_or(HttpError::Unauthorized)?;
     let pool = &req.state().pool;
 
-    let categories: Vec<CategoryDto> = get_categories_db(pool)
-        .await?
-        .into_iter()
-        .map(|x| x.to_dto())
-        .collect();
+    let categories = get_categories_app(pool).await?;
 
     Ok(serde_json::to_string_pretty(&categories)?)
 }
@@ -29,7 +24,7 @@ async fn get_category(req: Request<State>) -> tide::Result<String> {
     let pool = &req.state().pool;
     let id: i32 = req.param("id")?.parse()?;
 
-    let category: CategoryDto = get_category_db(pool, id).await?.to_dto();
+    let category = get_category_app(pool, id).await?;
 
     Ok(serde_json::to_string_pretty(&category)?)
 }
@@ -39,11 +34,7 @@ async fn create_category(mut req: Request<State>) -> tide::Result<String> {
     let body: CreateCategoryDto = req.body_json().await?;
     let pool = &req.state().pool;
 
-    let categories: Vec<CategoryDto> = create_category_db(&pool, &body.label, &body.color)
-        .await?
-        .into_iter()
-        .map(|x| x.to_dto())
-        .collect();
+    let categories = create_category_app(&pool, &body.label, &body.color).await?;
 
     Ok(serde_json::to_string_pretty(&categories)?)
 }

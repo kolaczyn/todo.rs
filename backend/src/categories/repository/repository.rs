@@ -1,9 +1,8 @@
-use anyhow::Error;
 use sqlx::PgPool;
 
 use crate::categories::repository::models::CategoryDb;
 
-pub async fn get_categories_db(pool: &PgPool) -> Result<Vec<CategoryDb>, Error> {
+pub async fn get_categories_db(pool: &PgPool) -> Result<Vec<CategoryDb>, sqlx::Error> {
     let categories = sqlx::query_as!(
         CategoryDb,
         "
@@ -17,7 +16,7 @@ pub async fn get_categories_db(pool: &PgPool) -> Result<Vec<CategoryDb>, Error> 
     Ok(categories)
 }
 
-pub async fn get_category_db(pool: &PgPool, id: i32) -> Result<CategoryDb, Error> {
+pub async fn get_category_db(pool: &PgPool, id: i32) -> Result<CategoryDb, sqlx::Error> {
     let category = sqlx::query_as!(
         CategoryDb,
         "
@@ -40,7 +39,7 @@ pub async fn create_category_db(
     pool: &PgPool,
     label: &String,
     color: &String,
-) -> Result<Vec<CategoryDb>, Error> {
+) -> Result<Vec<CategoryDb>, sqlx::Error> {
     let categories = sqlx::query_as!(
         CategoryDb,
         "
