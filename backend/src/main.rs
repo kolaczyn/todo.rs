@@ -10,6 +10,7 @@ use crate::{
     auth::api::endpoints::auth_endpoints,
     categories::api::endpoints::categories_endpoints,
     common::{jwt::Claims, secrets::get_session_secret},
+    friends::api::endpoints::friends_endpoints,
     state::State,
     todos::api::endpoints::todo_endpoints,
 };
@@ -17,6 +18,7 @@ use crate::{
 mod auth;
 mod categories;
 mod common;
+mod friends;
 mod state;
 mod todos;
 
@@ -46,7 +48,8 @@ async fn main() -> tide::Result<()> {
     tide::log::start();
 
     app.at("v1/auth").nest(auth_endpoints(state.clone()));
-    app.at("/v1/todos").nest(todo_endpoints(state.clone()));
+    app.at("/todos").nest(todo_endpoints(state.clone()));
+    app.at("/v1/friends").nest(friends_endpoints(state.clone()));
     app.at("/v1/categories").nest(categories_endpoints(state));
 
     let host = String::from("0.0.0.0");
